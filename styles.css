@@ -25,6 +25,10 @@ body {
   color: var(--text);
 }
 
+body.dialog-open {
+  overflow: hidden;
+}
+
 button,
 input,
 textarea {
@@ -390,22 +394,29 @@ button[type="submit"]:hover,
 }
 
 .item-dialog {
-  border: 0;
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-  max-width: 460px;
-  padding: 0;
-  width: calc(100% - 28px);
+  align-items: center;
+  background: rgba(24, 33, 31, 0.34);
+  display: none;
+  inset: 0;
+  justify-content: center;
+  padding: 14px;
+  position: fixed;
+  z-index: 20;
 }
 
-.item-dialog::backdrop {
-  background: rgba(24, 33, 31, 0.34);
+.item-dialog.open {
+  display: flex;
 }
 
 .item-form {
+  background: var(--panel);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
   display: grid;
   gap: 14px;
+  max-width: 460px;
   padding: 18px;
+  width: 100%;
 }
 
 .dialog-header {

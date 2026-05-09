@@ -85,8 +85,8 @@
       </article>
     </template>
 
-    <dialog class="item-dialog" id="item-dialog" aria-labelledby="item-dialog-title">
-      <form class="item-form" id="item-form" method="dialog">
+    <div class="item-dialog" id="item-dialog" aria-labelledby="item-dialog-title" role="dialog" aria-modal="true" hidden>
+      <form class="item-form" id="item-form">
         <header class="dialog-header">
           <h2 id="item-dialog-title">Add item</h2>
           <button class="icon-button" id="close-item-form" type="button" aria-label="Close">x</button>
@@ -109,7 +109,7 @@
         </div>
         <button type="submit">Add item</button>
       </form>
-    </dialog>
+    </div>
 
     <script src="./app.js" defer></script>
   </body>

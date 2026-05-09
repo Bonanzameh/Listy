@@ -89,6 +89,20 @@ function render() {
   saveState();
 }
 
+function openItemDialog() {
+  els.itemForm.reset();
+  els.itemDialog.hidden = false;
+  els.itemDialog.classList.add("open");
+  document.body.classList.add("dialog-open");
+  requestAnimationFrame(() => els.itemTitle.focus());
+}
+
+function closeItemDialog() {
+  els.itemDialog.classList.remove("open");
+  els.itemDialog.hidden = true;
+  document.body.classList.remove("dialog-open");
+}
+
 function renderListNav() {
   els.listNav.replaceChildren();
 
@@ -346,23 +360,27 @@ els.itemForm.addEventListener("submit", (event) => {
   });
 
   els.itemForm.reset();
-  els.itemDialog.close();
+  closeItemDialog();
   render();
 });
 
 els.showItemForm.addEventListener("click", () => {
-  els.itemForm.reset();
-  els.itemDialog.showModal();
-  els.itemTitle.focus();
+  openItemDialog();
 });
 
 els.closeItemForm.addEventListener("click", () => {
-  els.itemDialog.close();
+  closeItemDialog();
 });
 
 els.itemDialog.addEventListener("click", (event) => {
   if (event.target === els.itemDialog) {
-    els.itemDialog.close();
+    closeItemDialog();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !els.itemDialog.hidden) {
+    closeItemDialog();
   }
 });
 
