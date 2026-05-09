@@ -1,8 +1,8 @@
 # Listy
 
-Listy is a responsive list web app for tasks, shopping, and errands. It supports creating, renaming, and deleting lists; adding items with a title, optional description, optional volume, and optional due date; editing items inline; deleting items; and checking items off.
+Listy is a responsive list web app for tasks, shopping, and errands. It supports creating, renaming, and deleting lists; adding items with a title, optional description, optional volume, and optional due date; deleting items; and checking items off.
 
-Checked items are shown in the Done section at the bottom. Open and done items are each sorted alphabetically.
+Checked items are shown in the Done section at the bottom. Open and done items are each sorted alphabetically. Data is stored centrally in the container data volume, and connected browsers receive realtime updates.
 
 ## Run with Docker Compose
 
@@ -18,12 +18,12 @@ http://localhost:8080
 
 ## Run without Docker
 
-Because this is a static app, you can also serve the folder locally:
+You can also run it locally with Node.js:
 
 ```bash
-python3 -m http.server 8080
+node server.js
 ```
 
 ## Data Storage
 
-Data is stored in the browser using `localStorage`. This keeps the app simple to host from GitHub or a small container, but data is local to each browser/device.
+Data is stored in `/app/data/listy.json` inside the container. The included `docker-compose.yml` mounts that path to the `listy_data` Docker volume so data survives container rebuilds.

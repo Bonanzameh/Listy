@@ -1,6 +1,14 @@
-FROM nginx:1.27-alpine
+FROM node:22-alpine
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY index.html styles.css app.js /usr/share/nginx/html/
+WORKDIR /app
 
-EXPOSE 80
+COPY server.js index.html styles.css app.js ./
+
+ENV PORT=3000
+ENV DATA_DIR=/app/data
+
+RUN mkdir -p /app/data
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
