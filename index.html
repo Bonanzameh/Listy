@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8fafc" />
+    <title>Listy</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Lists">
+        <header class="brand">
+          <div>
+            <h1>Listy</h1>
+            <p>Tasks, groceries, errands.</p>
+          </div>
+          <button class="icon-button mobile-only" id="toggle-lists" type="button" aria-label="Show lists">
+            <span aria-hidden="true">Menu</span>
+          </button>
+        </header>
+
+        <form class="new-list-form" id="new-list-form">
+          <label for="new-list-name">New list</label>
+          <div class="inline-form">
+            <input id="new-list-name" name="name" type="text" placeholder="Weekend groceries" autocomplete="off" required />
+            <button type="submit">Add</button>
+          </div>
+        </form>
+
+        <nav class="list-nav" id="list-nav" aria-label="Saved lists"></nav>
+      </aside>
+
+      <main class="main-panel">
+        <section class="empty-state" id="empty-state" hidden>
+          <h2>No list selected</h2>
+          <p>Create a list to start adding items.</p>
+        </section>
+
+        <section class="list-workspace" id="list-workspace" hidden>
+          <header class="list-header">
+            <div>
+              <label class="eyebrow" for="list-name">Current list</label>
+              <input id="list-name" class="list-title-input" type="text" autocomplete="off" />
+            </div>
+            <button class="danger-button" id="delete-list" type="button">Delete list</button>
+          </header>
+
+          <form class="item-form" id="item-form">
+            <div class="field title-field">
+              <label for="item-title">Item</label>
+              <input id="item-title" name="title" type="text" placeholder="Eggs" autocomplete="off" required />
+            </div>
+            <div class="field volume-field">
+              <label for="item-volume">Volume</label>
+              <input id="item-volume" name="volume" type="text" placeholder="6" autocomplete="off" />
+            </div>
+            <div class="field due-field">
+              <label for="item-due">Due date</label>
+              <input id="item-due" name="dueDate" type="date" />
+            </div>
+            <div class="field description-field">
+              <label for="item-description">Description</label>
+              <textarea id="item-description" name="description" rows="2" placeholder="Optional notes"></textarea>
+            </div>
+            <button type="submit">Add item</button>
+          </form>
+
+          <div class="summary-row" id="summary-row"></div>
+
+          <section class="item-section" aria-labelledby="open-heading">
+            <h2 id="open-heading">Open</h2>
+            <div class="item-list" id="open-items"></div>
+          </section>
+
+          <section class="item-section done-section" aria-labelledby="done-heading">
+            <h2 id="done-heading">Done</h2>
+            <div class="item-list" id="done-items"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <template id="list-button-template">
+      <button class="list-button" type="button">
+        <span class="list-button-name"></span>
+        <span class="list-button-count"></span>
+      </button>
+    </template>
+
+    <template id="item-template">
+      <article class="item-card">
+        <label class="check-control">
+          <input class="item-check" type="checkbox" />
+          <span aria-hidden="true"></span>
+        </label>
+        <div class="item-content">
+          <div class="item-primary">
+            <input class="item-title-edit" type="text" aria-label="Item title" />
+            <input class="item-volume-edit" type="text" aria-label="Item volume" placeholder="Volume" />
+          </div>
+          <textarea class="item-description-edit" rows="2" aria-label="Item description" placeholder="Description"></textarea>
+          <div class="item-meta">
+            <label>
+              Due
+              <input class="item-due-edit" type="date" aria-label="Item due date" />
+            </label>
+          </div>
+        </div>
+        <button class="ghost-button item-delete" type="button" aria-label="Delete item">Delete</button>
+      </article>
+    </template>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
