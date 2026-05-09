@@ -43,28 +43,11 @@
               <label class="eyebrow" for="list-name">Current list</label>
               <input id="list-name" class="list-title-input" type="text" autocomplete="off" />
             </div>
-            <button class="danger-button" id="delete-list" type="button">Delete list</button>
+            <div class="header-actions">
+              <button class="icon-button add-item-button" id="show-item-form" type="button" aria-label="Add item">+</button>
+              <button class="danger-button" id="delete-list" type="button">Delete list</button>
+            </div>
           </header>
-
-          <form class="item-form" id="item-form">
-            <div class="field title-field">
-              <label for="item-title">Item</label>
-              <input id="item-title" name="title" type="text" placeholder="Eggs" autocomplete="off" required />
-            </div>
-            <div class="field volume-field">
-              <label for="item-volume">Volume</label>
-              <input id="item-volume" name="volume" type="text" placeholder="6" autocomplete="off" />
-            </div>
-            <div class="field due-field">
-              <label for="item-due">Due date</label>
-              <input id="item-due" name="dueDate" type="date" />
-            </div>
-            <div class="field description-field">
-              <label for="item-description">Description</label>
-              <textarea id="item-description" name="description" rows="2" placeholder="Optional notes"></textarea>
-            </div>
-            <button type="submit">Add item</button>
-          </form>
 
           <div class="summary-row" id="summary-row"></div>
 
@@ -94,22 +77,39 @@
           <input class="item-check" type="checkbox" />
           <span aria-hidden="true"></span>
         </label>
-        <div class="item-content">
-          <div class="item-primary">
-            <input class="item-title-edit" type="text" aria-label="Item title" />
-            <input class="item-volume-edit" type="text" aria-label="Item volume" placeholder="Volume" />
-          </div>
-          <textarea class="item-description-edit" rows="2" aria-label="Item description" placeholder="Description"></textarea>
-          <div class="item-meta">
-            <label>
-              Due
-              <input class="item-due-edit" type="date" aria-label="Item due date" />
-            </label>
-          </div>
+        <div class="item-copy">
+          <span class="item-title"></span>
+          <span class="item-subtitle"></span>
         </div>
         <button class="ghost-button item-delete" type="button" aria-label="Delete item">Delete</button>
       </article>
     </template>
+
+    <dialog class="item-dialog" id="item-dialog" aria-labelledby="item-dialog-title">
+      <form class="item-form" id="item-form" method="dialog">
+        <header class="dialog-header">
+          <h2 id="item-dialog-title">Add item</h2>
+          <button class="icon-button" id="close-item-form" type="button" aria-label="Close">x</button>
+        </header>
+        <div class="field title-field">
+          <label for="item-title">Item</label>
+          <input id="item-title" name="title" type="text" placeholder="Eggs" autocomplete="off" required />
+        </div>
+        <div class="field volume-field">
+          <label for="item-volume">Volume</label>
+          <input id="item-volume" name="volume" type="text" placeholder="6" autocomplete="off" />
+        </div>
+        <div class="field due-field">
+          <label for="item-due">Due date</label>
+          <input id="item-due" name="dueDate" type="date" />
+        </div>
+        <div class="field description-field">
+          <label for="item-description">Description</label>
+          <textarea id="item-description" name="description" rows="3" placeholder="Optional notes"></textarea>
+        </div>
+        <button type="submit">Add item</button>
+      </form>
+    </dialog>
 
     <script src="./app.js" defer></script>
   </body>

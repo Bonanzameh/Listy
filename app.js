@@ -10,6 +10,9 @@ const els = {
   workspace: document.querySelector("#list-workspace"),
   listName: document.querySelector("#list-name"),
   deleteList: document.querySelector("#delete-list"),
+  showItemForm: document.querySelector("#show-item-form"),
+  closeItemForm: document.querySelector("#close-item-form"),
+  itemDialog: document.querySelector("#item-dialog"),
   itemForm: document.querySelector("#item-form"),
   itemTitle: document.querySelector("#item-title"),
   itemVolume: document.querySelector("#item-volume"),
@@ -161,26 +164,91 @@ function renderItems(container, items) {
   items.forEach((item) => {
     const card = els.itemTemplate.content.firstElementChild.cloneNode(true);
     const checkbox = card.querySelector(".item-check");
-    const title = card.querySelector(".item-title-edit");
-    const volume = card.querySelector(".item-volume-edit");
-    const description = card.querySelector(".item-description-edit");
-    const dueDate = card.querySelector(".item-due-edit");
+    const title = card.querySelector(".item-title");
+    const subtitle = card.querySelector(".item-subtitle");
     const deleteButton = card.querySelector(".item-delete");
 
     checkbox.checked = item.done;
-    title.value = item.title;
-    volume.value = item.volume || "";
-    description.value = item.description || "";
-    dueDate.value = item.dueDate || "";
+    title.textContent = item.title;
+    subtitle.textContent = getItemSubtitle(item);
+    card.classList.toggle("is-done", item.done);
 
     checkbox.addEventListener("change", () => updateItem(item.id, { done: checkbox.checked }));
-    title.addEventListener("change", () => updateItem(item.id, { title: title.value.trim() || "Untitled item" }));
-    volume.addEventListener("change", () => updateItem(item.id, { volume: volume.value.trim() }));
-    description.addEventListener("change", () => updateItem(item.id, { description: description.value.trim() }));
-    dueDate.addEventListener("change", () => updateItem(item.id, { dueDate: dueDate.value }));
     deleteButton.addEventListener("click", () => deleteItem(item.id));
+    attachSwipeToggle(card, item);
 
     container.append(card);
+  });
+}
+
+function getItemSubtitle(item) {
+  const details = [];
+  if (item.volume) {
+    details.push(item.volume);
+  }
+  if (item.dueDate) {
+    details.push(`Due ${formatDate(item.dueDate)}`);
+  }
+  if (item.description) {
+    details.push(item.description);
+  }
+
+  return details.join(" - ");
+}
+
+function formatDate(dateValue) {
+  const date = new Date(`${dateValue}T00:00:00`);
+  if (Number.isNaN(date.getTime())) {
+    return dateValue;
+  }
+
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function attachSwipeToggle(card, item) {
+  let startX = 0;
+  let startY = 0;
+  let active = false;
+
+  card.addEventListener("pointerdown", (event) => {
+    if (event.target.closest("button, input, label")) {
+      return;
+    }
+
+    active = true;
+    startX = event.clientX;
+    startY = event.clientY;
+    card.setPointerCapture(event.pointerId);
+  });
+
+  card.addEventListener("pointermove", (event) => {
+    if (!active) {
+      return;
+    }
+
+    const deltaX = event.clientX - startX;
+    const deltaY = event.clientY - startY;
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      card.style.transform = `translateX(${Math.max(-90, Math.min(90, deltaX))}px)`;
+    }
+  });
+
+  card.addEventListener("pointerup", (event) => {
+    if (!active) {
+      return;
+    }
+
+    active = false;
+    const deltaX = event.clientX - startX;
+    card.style.transform = "";
+    if (Math.abs(deltaX) >= 64) {
+      updateItem(item.id, { done: !item.done });
+    }
+  });
+
+  card.addEventListener("pointercancel", () => {
+    active = false;
+    card.style.transform = "";
   });
 }
 
@@ -278,8 +346,24 @@ els.itemForm.addEventListener("submit", (event) => {
   });
 
   els.itemForm.reset();
-  els.itemTitle.focus();
+  els.itemDialog.close();
   render();
+});
+
+els.showItemForm.addEventListener("click", () => {
+  els.itemForm.reset();
+  els.itemDialog.showModal();
+  els.itemTitle.focus();
+});
+
+els.closeItemForm.addEventListener("click", () => {
+  els.itemDialog.close();
+});
+
+els.itemDialog.addEventListener("click", (event) => {
+  if (event.target === els.itemDialog) {
+    els.itemDialog.close();
+  }
 });
 
 els.toggleLists.addEventListener("click", () => {
