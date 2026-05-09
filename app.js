@@ -10,12 +10,12 @@ const els = {
   deleteList: document.querySelector("#delete-list"),
   showItemForm: document.querySelector("#show-item-form"),
   closeItemForm: document.querySelector("#close-item-form"),
-  itemDialog: document.querySelector("#item-dialog"),
   itemForm: document.querySelector("#item-form"),
   itemTitle: document.querySelector("#item-title"),
   itemVolume: document.querySelector("#item-volume"),
   itemDue: document.querySelector("#item-due"),
   itemDescription: document.querySelector("#item-description"),
+  statusMessage: document.querySelector("#status-message"),
   summaryRow: document.querySelector("#summary-row"),
   openItems: document.querySelector("#open-items"),
   doneItems: document.querySelector("#done-items"),
@@ -27,10 +27,9 @@ let state = { activeListId: null, lists: [] };
 let activeListId = null;
 
 async function api(path, options = {}) {
-  const response = await fetch(path, {
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-    ...options,
-  });
+  const requestOptions = Object.assign({}, options);
+  requestOptions.headers = Object.assign({ "Content-Type": "application/json" }, options.headers || {});
+  const response = await fetch(path, requestOptions);
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: "Request failed" }));
@@ -43,7 +42,7 @@ async function api(path, options = {}) {
 async function loadState() {
   state = await api("/api/state");
   if (!activeListId || !state.lists.some((list) => list.id === activeListId)) {
-    activeListId = state.activeListId || state.lists[0]?.id || null;
+    activeListId = state.activeListId || (state.lists[0] ? state.lists[0].id : null);
   }
   render();
 }
@@ -53,7 +52,7 @@ function connectRealtime() {
   events.onmessage = (event) => {
     state = JSON.parse(event.data);
     if (!activeListId || !state.lists.some((list) => list.id === activeListId)) {
-      activeListId = state.activeListId || state.lists[0]?.id || null;
+      activeListId = state.activeListId || (state.lists[0] ? state.lists[0].id : null);
     }
     render();
   };
@@ -68,7 +67,7 @@ function getActiveList() {
 }
 
 function sortItems(items) {
-  return [...items].sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }));
+  return items.slice().sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: "base" }));
 }
 
 function render() {
@@ -76,22 +75,32 @@ function render() {
   renderWorkspace();
 }
 
-function openItemDialog() {
-  els.itemForm.reset();
-  els.itemDialog.hidden = false;
-  els.itemDialog.classList.add("open");
-  document.body.classList.add("dialog-open");
-  requestAnimationFrame(() => els.itemTitle.focus());
+function clearElement(element) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
 }
 
-function closeItemDialog() {
-  els.itemDialog.classList.remove("open");
-  els.itemDialog.hidden = true;
-  document.body.classList.remove("dialog-open");
+function setStatus(message, isError) {
+  els.statusMessage.hidden = !message;
+  els.statusMessage.textContent = message || "";
+  els.statusMessage.classList.toggle("is-error", Boolean(isError));
+}
+
+function openItemForm() {
+  els.itemForm.reset();
+  els.itemForm.hidden = false;
+  setStatus("", false);
+  setTimeout(() => els.itemTitle.focus(), 0);
+}
+
+function closeItemForm() {
+  els.itemForm.hidden = true;
+  setStatus("", false);
 }
 
 function renderListNav() {
-  els.listNav.replaceChildren();
+  clearElement(els.listNav);
 
   if (!state.lists.length) {
     const empty = document.createElement("p");
@@ -121,7 +130,7 @@ function renderListNav() {
 
 function renderWorkspace() {
   const list = getActiveList();
-  activeListId = list?.id || null;
+  activeListId = list ? list.id : null;
 
   els.emptyState.hidden = Boolean(list);
   els.workspace.hidden = !list;
@@ -134,11 +143,10 @@ function renderWorkspace() {
   const openItems = sortItems(list.items.filter((item) => !item.done));
   const doneItems = sortItems(list.items.filter((item) => item.done));
 
-  els.summaryRow.replaceChildren(
-    createPill(`${openItems.length} open`),
-    createPill(`${doneItems.length} done`),
-    createPill(`${list.items.length} total`),
-  );
+  clearElement(els.summaryRow);
+  els.summaryRow.appendChild(createPill(`${openItems.length} open`));
+  els.summaryRow.appendChild(createPill(`${doneItems.length} done`));
+  els.summaryRow.appendChild(createPill(`${list.items.length} total`));
 
   renderItems(els.openItems, openItems);
   renderItems(els.doneItems, doneItems);
@@ -152,7 +160,7 @@ function createPill(text) {
 }
 
 function renderItems(container, items) {
-  container.replaceChildren();
+  clearElement(container);
 
   if (!items.length) {
     const empty = document.createElement("p");
@@ -212,14 +220,16 @@ function attachSwipeToggle(card, item) {
   let active = false;
 
   card.addEventListener("pointerdown", (event) => {
-    if (event.target.closest("button, input, label")) {
+    if (event.target.closest && event.target.closest("button, input, label")) {
       return;
     }
 
     active = true;
     startX = event.clientX;
     startY = event.clientY;
-    card.setPointerCapture(event.pointerId);
+    if (card.setPointerCapture) {
+      card.setPointerCapture(event.pointerId);
+    }
   });
 
   card.addEventListener("pointermove", (event) => {
@@ -298,13 +308,17 @@ els.newListForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  state = await api("/api/lists", {
-    method: "POST",
-    body: JSON.stringify({ name }),
-  });
-  activeListId = state.activeListId;
-  els.newListForm.reset();
-  render();
+  try {
+    state = await api("/api/lists", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    });
+    activeListId = state.activeListId;
+    els.newListForm.reset();
+    render();
+  } catch (error) {
+    setStatus(error.message, true);
+  }
 });
 
 els.listName.addEventListener("change", () => {
@@ -322,9 +336,13 @@ els.deleteList.addEventListener("click", async () => {
     return;
   }
 
-  state = await api(`/api/lists/${list.id}`, { method: "DELETE" });
-  activeListId = state.activeListId || state.lists[0]?.id || null;
-  render();
+  try {
+    state = await api(`/api/lists/${list.id}`, { method: "DELETE" });
+    activeListId = state.activeListId || (state.lists[0] ? state.lists[0].id : null);
+    render();
+  } catch (error) {
+    setStatus(error.message, true);
+  }
 });
 
 els.itemForm.addEventListener("submit", async (event) => {
@@ -335,38 +353,36 @@ els.itemForm.addEventListener("submit", async (event) => {
     return;
   }
 
-  state = await api(`/api/lists/${list.id}/items`, {
-    method: "POST",
-    body: JSON.stringify({
-      title,
-      description: els.itemDescription.value.trim(),
-      volume: els.itemVolume.value.trim(),
-      dueDate: els.itemDue.value,
-    }),
-  });
+  try {
+    state = await api(`/api/lists/${list.id}/items`, {
+      method: "POST",
+      body: JSON.stringify({
+        title,
+        description: els.itemDescription.value.trim(),
+        volume: els.itemVolume.value.trim(),
+        dueDate: els.itemDue.value,
+      }),
+    });
 
-  els.itemForm.reset();
-  closeItemDialog();
-  render();
-});
-
-els.showItemForm.addEventListener("click", () => {
-  openItemDialog();
-});
-
-els.closeItemForm.addEventListener("click", () => {
-  closeItemDialog();
-});
-
-els.itemDialog.addEventListener("click", (event) => {
-  if (event.target === els.itemDialog) {
-    closeItemDialog();
+    els.itemForm.reset();
+    closeItemForm();
+    render();
+  } catch (error) {
+    setStatus(error.message, true);
   }
 });
 
+els.showItemForm.addEventListener("click", () => {
+  openItemForm();
+});
+
+els.closeItemForm.addEventListener("click", () => {
+  closeItemForm();
+});
+
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !els.itemDialog.hidden) {
-    closeItemDialog();
+  if (event.key === "Escape" && !els.itemForm.hidden) {
+    closeItemForm();
   }
 });
 
