@@ -3,21 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f8fafc" />
+    <meta name="theme-color" content="#f4f8fb" />
     <title>Listy</title>
+    <link rel="icon" href="./logo.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar" aria-label="Lists">
         <header class="brand">
-          <div>
-            <h1>Listy</h1>
-            <p>Tasks, groceries, errands.</p>
+          <div class="brand-lockup">
+            <img class="brand-logo" src="./logo.svg" alt="" />
+            <div>
+              <h1>Listy</h1>
+              <p>Tasks, groceries, errands.</p>
+            </div>
           </div>
-          <button class="icon-button mobile-only" id="toggle-lists" type="button" aria-label="Show lists">
-            <span aria-hidden="true">Menu</span>
-          </button>
+          <div class="brand-actions">
+            <button class="icon-button theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">Dark</button>
+            <button class="icon-button mobile-only" id="toggle-lists" type="button" aria-label="Show lists">
+              <span aria-hidden="true">Menu</span>
+            </button>
+          </div>
         </header>
 
         <form class="new-list-form" id="new-list-form">

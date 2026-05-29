@@ -2,7 +2,7 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY server.js index.html styles.css app.js ./
+COPY server.js index.html styles.css app.js logo.svg ./
 
 ENV PORT=3000
 ENV DATA_DIR=/app/data

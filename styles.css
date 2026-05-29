@@ -1,17 +1,46 @@
 :root {
   color-scheme: light;
-  --bg: #f6f7f4;
+  --bg: #f4f8fb;
   --panel: #ffffff;
-  --panel-soft: #eef2f0;
-  --text: #18211f;
-  --muted: #6b746f;
-  --line: #d9dfda;
-  --accent: #176b5b;
-  --accent-strong: #0f4f43;
+  --panel-soft: #e8f4fb;
+  --panel-warm: #fff7df;
+  --text: #102434;
+  --muted: #667887;
+  --line: #cddde7;
+  --accent: #087ca7;
+  --accent-strong: #075985;
+  --gold: #d6a21f;
+  --gold-strong: #a77708;
   --danger: #b42318;
   --danger-bg: #fff1f0;
-  --shadow: 0 18px 45px rgba(24, 33, 31, 0.1);
+  --glow: rgba(8, 124, 167, 0.13);
+  --focus-ring: rgba(8, 124, 167, 0.18);
+  --hover-soft: #f3ead0;
+  --empty-bg: rgba(255, 255, 255, 0.74);
+  --shadow: 0 18px 45px rgba(8, 73, 104, 0.12);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #071622;
+  --panel: #0c2030;
+  --panel-soft: #123247;
+  --panel-warm: #2c2414;
+  --text: #edf7fb;
+  --muted: #9ab0bf;
+  --line: #214155;
+  --accent: #38bdf8;
+  --accent-strong: #0ea5e9;
+  --gold: #f6c453;
+  --gold-strong: #d6a21f;
+  --danger: #fda29b;
+  --danger-bg: #3a1716;
+  --glow: rgba(56, 189, 248, 0.14);
+  --focus-ring: rgba(56, 189, 248, 0.2);
+  --hover-soft: #263d43;
+  --empty-bg: rgba(12, 32, 48, 0.74);
+  --shadow: 0 18px 45px rgba(0, 0, 0, 0.32);
 }
 
 * {
@@ -21,7 +50,9 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at top right, var(--glow), transparent 32rem),
+    var(--bg);
   color: var(--text);
 }
 
@@ -62,6 +93,27 @@ button {
   justify-content: space-between;
 }
 
+.brand-lockup {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand-logo {
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(8, 124, 167, 0.18);
+  flex: 0 0 auto;
+  height: 46px;
+  width: 46px;
+}
+
+.brand-actions {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+}
+
 .brand h1 {
   font-size: 2rem;
   line-height: 1;
@@ -94,7 +146,7 @@ label,
 
 input,
 textarea {
-  background: #fff;
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--text);
@@ -110,7 +162,7 @@ textarea {
 input:focus,
 textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(23, 107, 91, 0.13);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 button[type="submit"],
@@ -150,7 +202,7 @@ button[type="submit"]:hover,
 }
 
 .list-button:hover {
-  background: #e3e9e5;
+  background: var(--hover-soft);
 }
 
 .list-button-name {
@@ -210,7 +262,7 @@ button[type="submit"]:hover,
 }
 
 .list-title-input:focus {
-  border-color: var(--accent);
+  border-color: var(--gold);
   box-shadow: none;
 }
 
@@ -233,14 +285,15 @@ button[type="submit"]:hover,
 }
 
 .add-item-button {
-  background: var(--accent);
-  color: #fff;
+  background: var(--gold);
+  color: #1c1404;
   font-size: 1.35rem;
   line-height: 1;
 }
 
 .add-item-button:hover {
-  background: var(--accent-strong);
+  background: var(--gold-strong);
+  color: #fff;
 }
 
 .danger-button {
@@ -257,7 +310,7 @@ button[type="submit"]:hover,
 
 .ghost-button:hover,
 .icon-button:hover {
-  background: #e3e9e5;
+  background: var(--hover-soft);
 }
 
 .item-section {
@@ -286,7 +339,7 @@ button[type="submit"]:hover,
 }
 
 .item-card:hover {
-  border-color: #b9c4bd;
+  border-color: var(--accent);
 }
 
 .done-section .item-card {
@@ -311,8 +364,8 @@ button[type="submit"]:hover,
 }
 
 .check-control span {
-  background: #fff;
-  border: 2px solid #bcc7c0;
+  background: var(--panel);
+  border: 2px solid var(--line);
   border-radius: 6px;
   display: block;
   height: 20px;
@@ -320,13 +373,13 @@ button[type="submit"]:hover,
 }
 
 .check-control input:checked + span {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--gold);
+  border-color: var(--gold);
   position: relative;
 }
 
 .check-control input:checked + span::after {
-  border: solid #fff;
+  border: solid #1c1404;
   border-width: 0 2px 2px 0;
   content: "";
   height: 8px;
@@ -364,6 +417,7 @@ button[type="submit"]:hover,
 }
 
 .hidden-message {
+  background: var(--empty-bg);
   border: 1px dashed var(--line);
   border-radius: 8px;
   color: var(--muted);
@@ -390,6 +444,11 @@ button[type="submit"]:hover,
 
 .details-toggle {
   color: var(--muted);
+}
+
+.theme-toggle {
+  color: var(--accent-strong);
+  min-width: 56px;
 }
 
 .optional-fields {

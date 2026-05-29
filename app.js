@@ -1,4 +1,5 @@
 const els = {
+  themeToggle: document.querySelector("#theme-toggle"),
   sidebar: document.querySelector(".sidebar"),
   toggleLists: document.querySelector("#toggle-lists"),
   newListForm: document.querySelector("#new-list-form"),
@@ -22,8 +23,37 @@ const els = {
   itemTemplate: document.querySelector("#item-template"),
 };
 
+const THEME_KEY = "listy:theme";
 let state = { activeListId: null, lists: [] };
 let activeListId = null;
+
+function getPreferredTheme() {
+  const storedTheme = localStorage.getItem(THEME_KEY);
+  if (storedTheme === "dark" || storedTheme === "light") {
+    return storedTheme;
+  }
+  if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
+  return "light";
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  els.themeToggle.textContent = theme === "dark" ? "Light" : "Dark";
+  els.themeToggle.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  if (themeColor) {
+    themeColor.setAttribute("content", theme === "dark" ? "#071622" : "#f4f8fb");
+  }
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute("data-theme") || getPreferredTheme();
+  const nextTheme = currentTheme === "dark" ? "light" : "dark";
+  localStorage.setItem(THEME_KEY, nextTheme);
+  applyTheme(nextTheme);
+}
 
 async function api(path, options = {}) {
   const requestOptions = Object.assign({}, options);
@@ -368,7 +398,11 @@ els.toggleLists.addEventListener("click", () => {
   els.sidebar.classList.toggle("collapsed");
 });
 
+els.themeToggle.addEventListener("click", toggleTheme);
+
 els.sidebar.classList.toggle("collapsed", window.matchMedia("(max-width: 760px)").matches);
+
+applyTheme(getPreferredTheme());
 
 loadState().then(connectRealtime).catch((error) => {
   els.emptyState.hidden = false;
