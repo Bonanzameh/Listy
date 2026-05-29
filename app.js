@@ -16,6 +16,8 @@ const els = {
   itemVolume: document.querySelector("#item-volume"),
   itemDue: document.querySelector("#item-due"),
   itemDescription: document.querySelector("#item-description"),
+  submitItem: document.querySelector("#submit-item"),
+  cancelEdit: document.querySelector("#cancel-edit"),
   statusMessage: document.querySelector("#status-message"),
   openItems: document.querySelector("#open-items"),
   doneItems: document.querySelector("#done-items"),
@@ -26,6 +28,7 @@ const els = {
 const THEME_KEY = "listy:theme";
 let state = { activeListId: null, lists: [] };
 let activeListId = null;
+let editingItemId = null;
 
 function getPreferredTheme() {
   const storedTheme = localStorage.getItem(THEME_KEY);
@@ -44,7 +47,7 @@ function applyTheme(theme) {
   els.themeToggle.setAttribute("aria-label", theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
   const themeColor = document.querySelector('meta[name="theme-color"]');
   if (themeColor) {
-    themeColor.setAttribute("content", theme === "dark" ? "#071622" : "#f4f8fb");
+    themeColor.setAttribute("content", theme === "dark" ? "#161616" : "#f7fafc");
   }
 }
 
@@ -122,6 +125,28 @@ function setOptionalFieldsVisible(isVisible) {
   setStatus("", false);
 }
 
+function getItemById(itemId) {
+  const list = getActiveList();
+  if (!list) {
+    return null;
+  }
+  return list.items.find((item) => item.id === itemId) || null;
+}
+
+function setItemFormMode(item) {
+  editingItemId = item ? item.id : null;
+  els.itemTitle.value = item ? item.title : "";
+  els.itemVolume.value = item && item.volume ? item.volume : "";
+  els.itemDue.value = item && item.dueDate ? item.dueDate : "";
+  els.itemDescription.value = item && item.description ? item.description : "";
+  els.submitItem.textContent = item ? "Save" : "+";
+  els.submitItem.setAttribute("aria-label", item ? "Save item" : "Add item");
+  els.cancelEdit.hidden = !item;
+  setOptionalFieldsVisible(Boolean(item && (item.volume || item.dueDate || item.description)));
+  setStatus(item ? "Editing item" : "", false);
+  els.itemTitle.focus();
+}
+
 function renderListNav() {
   clearElement(els.listNav);
 
@@ -144,6 +169,7 @@ function renderListNav() {
       button.querySelector(".list-button-count").textContent = `${openCount}/${list.items.length}`;
       button.addEventListener("click", () => {
         activeListId = list.id;
+        setItemFormMode(null);
         els.sidebar.classList.add("collapsed");
         render();
       });
@@ -186,6 +212,8 @@ function renderItems(container, items) {
     const checkbox = card.querySelector(".item-check");
     const title = card.querySelector(".item-title");
     const subtitle = card.querySelector(".item-subtitle");
+    const itemActions = card.querySelector(".item-actions");
+    const editButton = card.querySelector(".item-edit");
     const deleteButton = card.querySelector(".item-delete");
 
     checkbox.checked = item.done;
@@ -194,8 +222,10 @@ function renderItems(container, items) {
     card.classList.toggle("is-done", item.done);
 
     checkbox.addEventListener("change", () => updateItem(item.id, { done: checkbox.checked }));
+    card.querySelector(".item-copy").addEventListener("click", () => setItemFormMode(item));
+    editButton.addEventListener("click", () => setItemFormMode(item));
     deleteButton.addEventListener("click", () => deleteItem(item.id));
-    attachSwipeToggle(card, item);
+    attachSwipeActions(card, item, itemActions);
 
     container.append(card);
   });
@@ -225,7 +255,7 @@ function formatDate(dateValue) {
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-function attachSwipeToggle(card, item) {
+function attachSwipeActions(card, item, itemActions) {
   let startX = 0;
   let startY = 0;
   let active = false;
@@ -251,7 +281,7 @@ function attachSwipeToggle(card, item) {
     const deltaX = event.clientX - startX;
     const deltaY = event.clientY - startY;
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      card.style.transform = `translateX(${Math.max(-90, Math.min(90, deltaX))}px)`;
+      card.style.transform = `translateX(${Math.max(-72, Math.min(72, deltaX))}px)`;
     }
   });
 
@@ -263,8 +293,11 @@ function attachSwipeToggle(card, item) {
     active = false;
     const deltaX = event.clientX - startX;
     card.style.transform = "";
-    if (Math.abs(deltaX) >= 64) {
+    if (deltaX >= 58) {
+      itemActions.hidden = true;
       updateItem(item.id, { done: !item.done });
+    } else if (deltaX <= -44) {
+      itemActions.hidden = !itemActions.hidden;
     }
   });
 
@@ -305,10 +338,18 @@ async function deleteItem(itemId) {
   if (!list) {
     return;
   }
+  const item = getItemById(itemId);
+  const confirmed = confirm(`Delete "${item ? item.title : "this item"}"?`);
+  if (!confirmed) {
+    return;
+  }
 
   state = await api(`/api/lists/${list.id}/items/${itemId}`, {
     method: "DELETE",
   });
+  if (editingItemId === itemId) {
+    setItemFormMode(null);
+  }
   render();
 }
 
@@ -365,17 +406,30 @@ els.itemForm.addEventListener("submit", async (event) => {
   }
 
   try {
-    state = await api(`/api/lists/${list.id}/items`, {
-      method: "POST",
-      body: JSON.stringify({
-        title,
-        description: els.itemDescription.value.trim(),
-        volume: els.itemVolume.value.trim(),
-        dueDate: els.itemDue.value,
-      }),
-    });
+    const payload = {
+      title,
+      description: els.itemDescription.value.trim(),
+      volume: els.itemVolume.value.trim(),
+      dueDate: els.itemDue.value,
+    };
+
+    if (editingItemId) {
+      state = await api(`/api/lists/${list.id}/items/${editingItemId}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+    } else {
+      state = await api(`/api/lists/${list.id}/items`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    }
 
     els.itemForm.reset();
+    editingItemId = null;
+    els.submitItem.textContent = "+";
+    els.submitItem.setAttribute("aria-label", "Add item");
+    els.cancelEdit.hidden = true;
     setOptionalFieldsVisible(false);
     els.itemTitle.focus();
     render();
@@ -386,6 +440,11 @@ els.itemForm.addEventListener("submit", async (event) => {
 
 els.toggleItemDetails.addEventListener("click", () => {
   setOptionalFieldsVisible(els.optionalFields.hidden);
+});
+
+els.cancelEdit.addEventListener("click", () => {
+  els.itemForm.reset();
+  setItemFormMode(null);
 });
 
 document.addEventListener("keydown", (event) => {

@@ -1,16 +1,16 @@
 :root {
   color-scheme: light;
-  --bg: #f4f8fb;
+  --bg: #f7fafc;
   --panel: #ffffff;
-  --panel-soft: #e8f4fb;
-  --panel-warm: #fff7df;
+  --panel-soft: #eaf5fb;
+  --panel-warm: #fff3c4;
   --text: #102434;
-  --muted: #667887;
-  --line: #cddde7;
+  --muted: #5f7180;
+  --line: #c4d6e2;
   --accent: #087ca7;
   --accent-strong: #075985;
-  --gold: #d6a21f;
-  --gold-strong: #a77708;
+  --gold: #d8a414;
+  --gold-strong: #a97700;
   --danger: #b42318;
   --danger-bg: #fff1f0;
   --glow: rgba(8, 124, 167, 0.13);
@@ -23,23 +23,23 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #071622;
-  --panel: #0c2030;
-  --panel-soft: #123247;
-  --panel-warm: #2c2414;
-  --text: #edf7fb;
-  --muted: #9ab0bf;
-  --line: #214155;
+  --bg: #161616;
+  --panel: #202020;
+  --panel-soft: #2a2a2a;
+  --panel-warm: #3a321d;
+  --text: #f2f2f2;
+  --muted: #a7a7a7;
+  --line: #3a3a3a;
   --accent: #38bdf8;
   --accent-strong: #0ea5e9;
   --gold: #f6c453;
   --gold-strong: #d6a21f;
   --danger: #fda29b;
   --danger-bg: #3a1716;
-  --glow: rgba(56, 189, 248, 0.14);
+  --glow: rgba(56, 189, 248, 0.08);
   --focus-ring: rgba(56, 189, 248, 0.2);
-  --hover-soft: #263d43;
-  --empty-bg: rgba(12, 32, 48, 0.74);
+  --hover-soft: #3a3320;
+  --empty-bg: rgba(32, 32, 32, 0.76);
   --shadow: 0 18px 45px rgba(0, 0, 0, 0.32);
 }
 
@@ -73,7 +73,7 @@ button {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 268px 1fr;
   min-height: 100vh;
 }
 
@@ -82,8 +82,8 @@ button {
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  padding: 24px;
+  gap: 16px;
+  padding: 18px;
 }
 
 .brand {
@@ -101,11 +101,11 @@ button {
 }
 
 .brand-logo {
-  border-radius: 14px;
+  border-radius: 10px;
   box-shadow: 0 10px 22px rgba(8, 124, 167, 0.18);
   flex: 0 0 auto;
-  height: 46px;
-  width: 46px;
+  height: 36px;
+  width: 36px;
 }
 
 .brand-actions {
@@ -115,19 +115,14 @@ button {
 }
 
 .brand h1 {
-  font-size: 2rem;
+  font-size: 1.55rem;
   line-height: 1;
   margin: 0;
 }
 
-.brand p {
-  color: var(--muted);
-  margin: 8px 0 0;
-}
-
 .new-list-form {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 label,
@@ -148,10 +143,10 @@ input,
 textarea {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 5px;
   color: var(--text);
   outline: none;
-  padding: 10px 12px;
+  padding: 8px 10px;
   width: 100%;
 }
 
@@ -171,10 +166,15 @@ button[type="submit"],
   color: #fff;
 }
 
+.list-button.active {
+  background: var(--panel-warm);
+  color: var(--text);
+}
+
 button[type="submit"] {
-  border-radius: 8px;
+  border-radius: 5px;
   font-weight: 750;
-  padding: 10px 14px;
+  padding: 8px 12px;
 }
 
 button[type="submit"]:hover,
@@ -182,23 +182,32 @@ button[type="submit"]:hover,
   background: var(--accent-strong);
 }
 
+.list-button.active:hover {
+  background: var(--panel-warm);
+}
+
 .list-nav {
   display: grid;
-  gap: 8px;
+  gap: 5px;
   overflow: auto;
 }
 
 .list-button {
   align-items: center;
   background: var(--panel-soft);
-  border-radius: 8px;
+  border-left: 3px solid transparent;
+  border-radius: 5px;
   color: var(--text);
   display: grid;
   gap: 8px;
   grid-template-columns: 1fr auto;
-  min-height: 46px;
-  padding: 10px 12px;
+  min-height: 36px;
+  padding: 7px 9px;
   text-align: left;
+}
+
+.list-button.active {
+  border-left-color: var(--gold);
 }
 
 .list-button:hover {
@@ -219,7 +228,7 @@ button[type="submit"]:hover,
 
 .main-panel {
   display: grid;
-  padding: 28px;
+  padding: 20px;
 }
 
 .list-workspace,
@@ -240,9 +249,9 @@ button[type="submit"]:hover,
 .list-header {
   align-items: center;
   display: grid;
-  gap: 16px;
+  gap: 10px;
   grid-template-columns: 1fr auto;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .header-actions {
@@ -256,9 +265,9 @@ button[type="submit"]:hover,
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;
-  font-size: clamp(1.7rem, 3vw, 2.35rem);
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
   font-weight: 850;
-  padding: 4px 0;
+  padding: 2px 0;
 }
 
 .list-title-input:focus {
@@ -269,7 +278,7 @@ button[type="submit"]:hover,
 .danger-button,
 .ghost-button,
 .icon-button {
-  border-radius: 8px;
+  border-radius: 5px;
   font-weight: 750;
 }
 
@@ -278,10 +287,10 @@ button[type="submit"]:hover,
   background: var(--panel-soft);
   color: var(--text);
   display: inline-grid;
-  height: 42px;
+  height: 34px;
   justify-content: center;
-  min-width: 42px;
-  padding: 0 12px;
+  min-width: 34px;
+  padding: 0 9px;
 }
 
 .add-item-button {
@@ -299,13 +308,13 @@ button[type="submit"]:hover,
 .danger-button {
   background: var(--danger-bg);
   color: var(--danger);
-  padding: 11px 12px;
+  padding: 8px 10px;
 }
 
 .ghost-button {
   background: transparent;
   color: var(--muted);
-  padding: 8px 10px;
+  padding: 5px 7px;
 }
 
 .ghost-button:hover,
@@ -319,20 +328,20 @@ button[type="submit"]:hover,
 
 .item-list {
   display: grid;
-  gap: 5px;
+  gap: 4px;
 }
 
 .item-card {
   align-items: center;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: 4px;
   box-shadow: 0 1px 0 rgba(24, 33, 31, 0.03);
   display: grid;
-  gap: 8px;
+  gap: 6px;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  min-height: 42px;
-  padding: 5px 8px;
+  min-height: 34px;
+  padding: 3px 6px;
   touch-action: pan-y;
   transition: transform 150ms ease, border-color 150ms ease, opacity 150ms ease;
   user-select: none;
@@ -352,9 +361,9 @@ button[type="submit"]:hover,
 
 .check-control {
   display: grid;
-  height: 28px;
+  height: 24px;
   place-items: center;
-  width: 28px;
+  width: 24px;
 }
 
 .check-control input {
@@ -366,10 +375,10 @@ button[type="submit"]:hover,
 .check-control span {
   background: var(--panel);
   border: 2px solid var(--line);
-  border-radius: 6px;
+  border-radius: 4px;
   display: block;
-  height: 20px;
-  width: 20px;
+  height: 17px;
+  width: 17px;
 }
 
 .check-control input:checked + span {
@@ -382,10 +391,10 @@ button[type="submit"]:hover,
   border: solid #1c1404;
   border-width: 0 2px 2px 0;
   content: "";
-  height: 8px;
-  left: 6px;
+  height: 7px;
+  left: 5px;
   position: absolute;
-  top: 3px;
+  top: 2px;
   transform: rotate(45deg);
   width: 4px;
 }
@@ -406,40 +415,40 @@ button[type="submit"]:hover,
 }
 
 .item-title {
-  font-size: 0.96rem;
+  font-size: 0.91rem;
   font-weight: 800;
 }
 
 .item-subtitle {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   max-width: 260px;
 }
 
 .hidden-message {
   background: var(--empty-bg);
   border: 1px dashed var(--line);
-  border-radius: 8px;
+  border-radius: 5px;
   color: var(--muted);
-  padding: 12px;
+  padding: 10px;
   text-align: center;
 }
 
 .item-form {
   display: grid;
-  gap: 8px;
-  margin: 0 0 10px;
+  gap: 6px;
+  margin: 0 0 8px;
 }
 
 .quick-add-row {
   display: grid;
-  gap: 6px;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 5px;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
 }
 
 .quick-add-row input,
 .quick-add-row button {
-  height: 40px;
+  height: 34px;
 }
 
 .details-toggle {
@@ -448,12 +457,12 @@ button[type="submit"]:hover,
 
 .theme-toggle {
   color: var(--accent-strong);
-  min-width: 56px;
+  min-width: 48px;
 }
 
 .optional-fields {
   display: grid;
-  gap: 7px;
+  gap: 5px;
   grid-template-columns: minmax(110px, 0.45fr) minmax(145px, 0.55fr);
 }
 
@@ -463,10 +472,28 @@ button[type="submit"]:hover,
 
 .status-message {
   background: var(--panel-soft);
-  border-radius: 8px;
+  border-radius: 5px;
   color: var(--muted);
   margin: 0 0 14px;
-  padding: 10px 12px;
+  padding: 8px 10px;
+}
+
+.item-actions {
+  align-items: center;
+  display: flex;
+  gap: 2px;
+}
+
+.item-actions .item-edit {
+  color: var(--accent-strong);
+}
+
+.item-actions .item-delete {
+  color: var(--danger);
+}
+
+.cancel-edit-button {
+  color: var(--gold-strong);
 }
 
 .status-message.is-error {
