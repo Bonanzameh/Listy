@@ -4,8 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f4f8fb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Listy" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>Listy</title>
     <link rel="icon" href="./logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -89,6 +94,7 @@
 
     <template id="item-template">
       <article class="item-card">
+        <span class="swipe-hint" aria-hidden="true"></span>
         <label class="check-control">
           <input class="item-check" type="checkbox" />
           <span aria-hidden="true"></span>

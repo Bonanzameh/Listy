@@ -293,8 +293,10 @@ function getContentType(filePath) {
     ".html": "text/html",
     ".css": "text/css",
     ".js": "text/javascript",
+    ".webmanifest": "application/manifest+json",
     ".json": "application/json",
     ".svg": "image/svg+xml",
+    ".png": "image/png",
   }[ext] || "application/octet-stream";
 }
 

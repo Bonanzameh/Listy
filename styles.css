@@ -341,10 +341,60 @@ button[type="submit"]:hover,
   gap: 6px;
   grid-template-columns: auto minmax(0, 1fr) auto;
   min-height: 34px;
+  overflow: hidden;
   padding: 3px 6px;
+  position: relative;
   touch-action: pan-y;
-  transition: transform 150ms ease, border-color 150ms ease, opacity 150ms ease;
+  transition: background 150ms ease, transform 150ms ease, border-color 150ms ease, opacity 150ms ease;
   user-select: none;
+}
+
+.item-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.swipe-hint {
+  align-items: center;
+  bottom: 0;
+  color: #1c1404;
+  display: flex;
+  font-size: 0.75rem;
+  font-weight: 850;
+  justify-content: flex-start;
+  left: 0;
+  opacity: 0;
+  padding: 0 10px;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: opacity 120ms ease;
+  z-index: 0;
+}
+
+.item-card.swipe-right {
+  background: var(--panel-warm);
+  border-color: var(--gold);
+}
+
+.item-card.swipe-left {
+  background: var(--panel-soft);
+  border-color: var(--accent);
+}
+
+.item-card.swipe-right .swipe-hint,
+.item-card.swipe-left .swipe-hint {
+  opacity: 1;
+}
+
+.item-card.swipe-right .swipe-hint {
+  justify-content: flex-start;
+}
+
+.item-card.swipe-left .swipe-hint {
+  color: var(--accent-strong);
+  justify-content: flex-end;
 }
 
 .item-card:hover {

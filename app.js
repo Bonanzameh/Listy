@@ -212,6 +212,7 @@ function renderItems(container, items) {
     const checkbox = card.querySelector(".item-check");
     const title = card.querySelector(".item-title");
     const subtitle = card.querySelector(".item-subtitle");
+    const swipeHint = card.querySelector(".swipe-hint");
     const itemActions = card.querySelector(".item-actions");
     const editButton = card.querySelector(".item-edit");
     const deleteButton = card.querySelector(".item-delete");
@@ -225,7 +226,7 @@ function renderItems(container, items) {
     card.querySelector(".item-copy").addEventListener("click", () => setItemFormMode(item));
     editButton.addEventListener("click", () => setItemFormMode(item));
     deleteButton.addEventListener("click", () => deleteItem(item.id));
-    attachSwipeActions(card, item, itemActions);
+    attachSwipeActions(card, item, itemActions, swipeHint);
 
     container.append(card);
   });
@@ -255,10 +256,15 @@ function formatDate(dateValue) {
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-function attachSwipeActions(card, item, itemActions) {
+function attachSwipeActions(card, item, itemActions, swipeHint) {
   let startX = 0;
   let startY = 0;
   let active = false;
+
+  function clearSwipeCue() {
+    card.classList.remove("swipe-right", "swipe-left");
+    swipeHint.textContent = "";
+  }
 
   card.addEventListener("pointerdown", (event) => {
     if (event.target.closest && event.target.closest("button, input, label")) {
@@ -282,6 +288,15 @@ function attachSwipeActions(card, item, itemActions) {
     const deltaY = event.clientY - startY;
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       card.style.transform = `translateX(${Math.max(-72, Math.min(72, deltaX))}px)`;
+      card.classList.toggle("swipe-right", deltaX > 16);
+      card.classList.toggle("swipe-left", deltaX < -16);
+      if (deltaX > 16) {
+        swipeHint.textContent = item.done ? "Open" : "Done";
+      } else if (deltaX < -16) {
+        swipeHint.textContent = "Edit / Delete";
+      } else {
+        swipeHint.textContent = "";
+      }
     }
   });
 
@@ -293,6 +308,7 @@ function attachSwipeActions(card, item, itemActions) {
     active = false;
     const deltaX = event.clientX - startX;
     card.style.transform = "";
+    clearSwipeCue();
     if (deltaX >= 58) {
       itemActions.hidden = true;
       updateItem(item.id, { done: !item.done });
@@ -304,6 +320,7 @@ function attachSwipeActions(card, item, itemActions) {
   card.addEventListener("pointercancel", () => {
     active = false;
     card.style.transform = "";
+    clearSwipeCue();
   });
 }
 
@@ -462,6 +479,12 @@ els.themeToggle.addEventListener("click", toggleTheme);
 els.sidebar.classList.toggle("collapsed", window.matchMedia("(max-width: 760px)").matches);
 
 applyTheme(getPreferredTheme());
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js").catch(() => {});
+  });
+}
 
 loadState().then(connectRealtime).catch((error) => {
   els.emptyState.hidden = false;
