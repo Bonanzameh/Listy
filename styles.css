@@ -73,8 +73,7 @@ button {
   margin: 8px 0 0;
 }
 
-.new-list-form,
-.field {
+.new-list-form {
   display: grid;
   gap: 8px;
 }
@@ -191,7 +190,7 @@ button[type="submit"]:hover,
   display: grid;
   gap: 16px;
   grid-template-columns: 1fr auto;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .header-actions {
@@ -205,7 +204,7 @@ button[type="submit"]:hover,
   border: 0;
   border-bottom: 2px solid transparent;
   border-radius: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.7rem, 3vw, 2.35rem);
   font-weight: 850;
   padding: 4px 0;
 }
@@ -236,7 +235,7 @@ button[type="submit"]:hover,
 .add-item-button {
   background: var(--accent);
   color: #fff;
-  font-size: 1.65rem;
+  font-size: 1.35rem;
   line-height: 1;
 }
 
@@ -261,47 +260,26 @@ button[type="submit"]:hover,
   background: #e3e9e5;
 }
 
-.summary-row {
-  color: var(--muted);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 22px;
-}
-
-.summary-pill {
-  background: var(--panel-soft);
-  border-radius: 999px;
-  padding: 6px 10px;
-}
-
 .item-section {
-  margin-top: 18px;
-}
-
-.item-section h2 {
-  color: var(--muted);
-  font-size: 0.84rem;
-  margin: 0 0 8px;
-  text-transform: uppercase;
+  margin-top: 10px;
 }
 
 .item-list {
   display: grid;
-  gap: 8px;
+  gap: 5px;
 }
 
 .item-card {
   align-items: center;
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 7px;
   box-shadow: 0 1px 0 rgba(24, 33, 31, 0.03);
   display: grid;
-  gap: 12px;
+  gap: 8px;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  min-height: 58px;
-  padding: 9px 10px;
+  min-height: 42px;
+  padding: 5px 8px;
   touch-action: pan-y;
   transition: transform 150ms ease, border-color 150ms ease, opacity 150ms ease;
   user-select: none;
@@ -321,9 +299,9 @@ button[type="submit"]:hover,
 
 .check-control {
   display: grid;
-  height: 32px;
+  height: 28px;
   place-items: center;
-  width: 32px;
+  width: 28px;
 }
 
 .check-control input {
@@ -335,10 +313,10 @@ button[type="submit"]:hover,
 .check-control span {
   background: #fff;
   border: 2px solid #bcc7c0;
-  border-radius: 8px;
+  border-radius: 6px;
   display: block;
-  height: 24px;
-  width: 24px;
+  height: 20px;
+  width: 20px;
 }
 
 .check-control input:checked + span {
@@ -351,12 +329,12 @@ button[type="submit"]:hover,
   border: solid #fff;
   border-width: 0 2px 2px 0;
   content: "";
-  height: 10px;
-  left: 8px;
+  height: 8px;
+  left: 6px;
   position: absolute;
-  top: 4px;
+  top: 3px;
   transform: rotate(45deg);
-  width: 5px;
+  width: 4px;
 }
 
 .item-copy {
@@ -375,13 +353,13 @@ button[type="submit"]:hover,
 }
 
 .item-title {
-  font-size: 1rem;
+  font-size: 0.96rem;
   font-weight: 800;
 }
 
 .item-subtitle {
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.8rem;
   max-width: 260px;
 }
 
@@ -389,19 +367,39 @@ button[type="submit"]:hover,
   border: 1px dashed var(--line);
   border-radius: 8px;
   color: var(--muted);
-  padding: 16px;
+  padding: 12px;
   text-align: center;
 }
 
 .item-form {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
   display: grid;
-  gap: 14px;
-  margin: 0 0 18px;
-  padding: 18px;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.quick-add-row {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.quick-add-row input,
+.quick-add-row button {
+  height: 40px;
+}
+
+.details-toggle {
+  color: var(--muted);
+}
+
+.optional-fields {
+  display: grid;
+  gap: 7px;
+  grid-template-columns: minmax(110px, 0.45fr) minmax(145px, 0.55fr);
+}
+
+.optional-fields textarea {
+  grid-column: 1 / -1;
 }
 
 .status-message {
@@ -415,17 +413,6 @@ button[type="submit"]:hover,
 .status-message.is-error {
   background: var(--danger-bg);
   color: var(--danger);
-}
-
-.dialog-header {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-}
-
-.dialog-header h2 {
-  font-size: 1.3rem;
-  margin: 0;
 }
 
 .mobile-only {
@@ -477,12 +464,12 @@ button[type="submit"]:hover,
   }
 
   .list-title-input {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .item-card {
     grid-template-columns: auto minmax(0, 1fr) auto;
-    min-height: 56px;
+    min-height: 40px;
   }
 
   .item-delete {
@@ -496,5 +483,13 @@ button[type="submit"]:hover,
 
   .item-subtitle {
     max-width: 110px;
+  }
+
+  .optional-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .optional-fields textarea {
+    grid-column: auto;
   }
 }

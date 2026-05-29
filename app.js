@@ -8,15 +8,14 @@ const els = {
   workspace: document.querySelector("#list-workspace"),
   listName: document.querySelector("#list-name"),
   deleteList: document.querySelector("#delete-list"),
-  showItemForm: document.querySelector("#show-item-form"),
-  closeItemForm: document.querySelector("#close-item-form"),
+  toggleItemDetails: document.querySelector("#toggle-item-details"),
+  optionalFields: document.querySelector("#optional-fields"),
   itemForm: document.querySelector("#item-form"),
   itemTitle: document.querySelector("#item-title"),
   itemVolume: document.querySelector("#item-volume"),
   itemDue: document.querySelector("#item-due"),
   itemDescription: document.querySelector("#item-description"),
   statusMessage: document.querySelector("#status-message"),
-  summaryRow: document.querySelector("#summary-row"),
   openItems: document.querySelector("#open-items"),
   doneItems: document.querySelector("#done-items"),
   listButtonTemplate: document.querySelector("#list-button-template"),
@@ -87,15 +86,9 @@ function setStatus(message, isError) {
   els.statusMessage.classList.toggle("is-error", Boolean(isError));
 }
 
-function openItemForm() {
-  els.itemForm.reset();
-  els.itemForm.hidden = false;
-  setStatus("", false);
-  setTimeout(() => els.itemTitle.focus(), 0);
-}
-
-function closeItemForm() {
-  els.itemForm.hidden = true;
+function setOptionalFieldsVisible(isVisible) {
+  els.optionalFields.hidden = !isVisible;
+  els.toggleItemDetails.setAttribute("aria-expanded", String(isVisible));
   setStatus("", false);
 }
 
@@ -143,29 +136,17 @@ function renderWorkspace() {
   const openItems = sortItems(list.items.filter((item) => !item.done));
   const doneItems = sortItems(list.items.filter((item) => item.done));
 
-  clearElement(els.summaryRow);
-  els.summaryRow.appendChild(createPill(`${openItems.length} open`));
-  els.summaryRow.appendChild(createPill(`${doneItems.length} done`));
-  els.summaryRow.appendChild(createPill(`${list.items.length} total`));
-
   renderItems(els.openItems, openItems);
   renderItems(els.doneItems, doneItems);
-}
-
-function createPill(text) {
-  const pill = document.createElement("span");
-  pill.className = "summary-pill";
-  pill.textContent = text;
-  return pill;
 }
 
 function renderItems(container, items) {
   clearElement(container);
 
-  if (!items.length) {
+  if (!items.length && container === els.openItems) {
     const empty = document.createElement("p");
     empty.className = "hidden-message";
-    empty.textContent = "Nothing here.";
+    empty.textContent = "No items yet.";
     container.append(empty);
     return;
   }
@@ -365,24 +346,21 @@ els.itemForm.addEventListener("submit", async (event) => {
     });
 
     els.itemForm.reset();
-    closeItemForm();
+    setOptionalFieldsVisible(false);
+    els.itemTitle.focus();
     render();
   } catch (error) {
     setStatus(error.message, true);
   }
 });
 
-els.showItemForm.addEventListener("click", () => {
-  openItemForm();
-});
-
-els.closeItemForm.addEventListener("click", () => {
-  closeItemForm();
+els.toggleItemDetails.addEventListener("click", () => {
+  setOptionalFieldsVisible(els.optionalFields.hidden);
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !els.itemForm.hidden) {
-    closeItemForm();
+  if (event.key === "Escape" && !els.optionalFields.hidden) {
+    setOptionalFieldsVisible(false);
   }
 });
 
