@@ -27,8 +27,9 @@ const els = {
   itemTemplate: document.querySelector("#item-template"),
   cardsWorkspace: document.querySelector("#cards-workspace"),
   cardForm: document.querySelector("#card-form"),
-  showCardForm: document.querySelector("#show-card-form"),
   cancelCardForm: document.querySelector("#cancel-card-form"),
+  submitCard: document.querySelector("#submit-card"),
+  deleteCardForm: document.querySelector("#delete-card-form"),
   cardName: document.querySelector("#card-name"),
   cardNumber: document.querySelector("#card-number"),
   cardColor: document.querySelector("#card-color"),
@@ -40,6 +41,7 @@ const els = {
   cardDisplayName: document.querySelector("#card-display-name"),
   barcodeStage: document.querySelector("#barcode-stage"),
   closeCardDisplay: document.querySelector("#close-card-display"),
+  modifyCard: document.querySelector("#modify-card"),
   cardTemplate: document.querySelector("#card-template"),
 };
 
@@ -47,6 +49,8 @@ const THEME_KEY = "listy:theme";
 let state = { activeListId: null, lists: [], cards: [] };
 let activeListId = null;
 let editingItemId = null;
+let editingCardId = null;
+let activeCardId = null;
 let currentView = "lists";
 
 function getPreferredTheme() {
@@ -306,14 +310,18 @@ function renderCards() {
     node.querySelector(".customer-card-name").textContent = card.name;
     node.querySelector(".customer-card-number").textContent = card.number || (card.imageData ? "Image barcode" : "No barcode");
     main.addEventListener("click", () => showCard(card));
-    node.querySelector(".card-delete").addEventListener("click", () => deleteCard(card.id));
     els.cardsGrid.append(node);
   });
 }
 
 function openCardForm() {
+  editingCardId = null;
+  els.cardForm.reset();
+  els.cardColor.value = "#087ca7";
+  els.submitCard.textContent = "+";
+  els.submitCard.setAttribute("aria-label", "Save card");
+  els.deleteCardForm.hidden = true;
   els.cardForm.hidden = false;
-  els.showCardForm.hidden = true;
   setCardStatus("", false);
   els.cardName.focus();
 }
@@ -321,9 +329,27 @@ function openCardForm() {
 function closeCardForm() {
   els.cardForm.reset();
   els.cardColor.value = "#087ca7";
+  editingCardId = null;
   els.cardForm.hidden = true;
-  els.showCardForm.hidden = false;
+  els.submitCard.textContent = "+";
+  els.submitCard.setAttribute("aria-label", "Save card");
+  els.deleteCardForm.hidden = true;
   setCardStatus("", false);
+}
+
+function openCardEditForm(card) {
+  editingCardId = card.id;
+  els.cardName.value = card.name || "";
+  els.cardNumber.value = card.number || "";
+  els.cardColor.value = card.color || "#087ca7";
+  els.cardLogo.value = "";
+  els.cardImage.value = "";
+  els.submitCard.textContent = "Save";
+  els.submitCard.setAttribute("aria-label", "Save card changes");
+  els.deleteCardForm.hidden = false;
+  els.cardForm.hidden = false;
+  setCardStatus("Modifying card. Upload new images only if you want to replace them.", false);
+  els.cardName.focus();
 }
 
 function getCardInitials(name) {
@@ -335,6 +361,7 @@ function getCardInitials(name) {
 }
 
 function showCard(card) {
+  activeCardId = card.id;
   els.cardDisplay.hidden = false;
   els.cardDisplayName.textContent = card.name;
   clearElement(els.barcodeStage);
@@ -587,6 +614,7 @@ async function deleteCard(cardId) {
   try {
     state = await api(`/api/cards/${cardId}`, { method: "DELETE" });
     els.cardDisplay.hidden = true;
+    closeCardForm();
     render();
   } catch (error) {
     setCardStatus(error.message, true);
@@ -701,13 +729,40 @@ els.cardForm.addEventListener("submit", async (event) => {
   try {
     const imageData = await readImageFile(els.cardImage.files[0]);
     const logoData = await readImageFile(els.cardLogo.files[0]);
+    const currentCard = editingCardId ? (state.cards || []).find((card) => card.id === editingCardId) : null;
     if (!number && !imageData) {
-      throw new Error("Add a barcode number or upload an image");
+      if (!currentCard || !currentCard.imageData) {
+        throw new Error("Add a barcode number or upload an image");
+      }
     }
-    state = await api("/api/cards", {
-      method: "POST",
-      body: JSON.stringify({ name, number, imageData, logoData, color: els.cardColor.value }),
-    });
+
+    const payload = {
+      name,
+      number,
+      color: els.cardColor.value,
+    };
+    if (imageData) {
+      payload.imageData = imageData;
+    }
+    if (logoData) {
+      payload.logoData = logoData;
+    }
+
+    if (editingCardId) {
+      state = await api(`/api/cards/${editingCardId}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+      const updatedCard = (state.cards || []).find((card) => card.id === editingCardId);
+      if (updatedCard) {
+        showCard(updatedCard);
+      }
+    } else {
+      state = await api("/api/cards", {
+        method: "POST",
+        body: JSON.stringify(Object.assign({ imageData, logoData }, payload)),
+      });
+    }
     closeCardForm();
     setCardStatus("", false);
     render();
@@ -716,12 +771,23 @@ els.cardForm.addEventListener("submit", async (event) => {
   }
 });
 
-els.showCardForm.addEventListener("click", openCardForm);
-
 els.cancelCardForm.addEventListener("click", closeCardForm);
+
+els.deleteCardForm.addEventListener("click", () => {
+  if (editingCardId) {
+    deleteCard(editingCardId);
+  }
+});
 
 els.closeCardDisplay.addEventListener("click", () => {
   els.cardDisplay.hidden = true;
+});
+
+els.modifyCard.addEventListener("click", () => {
+  const card = (state.cards || []).find((candidate) => candidate.id === activeCardId);
+  if (card) {
+    openCardEditForm(card);
+  }
 });
 
 els.toggleItemDetails.addEventListener("click", () => {

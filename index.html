@@ -91,15 +91,15 @@
         <section class="cards-workspace" id="cards-workspace" hidden>
           <header class="cards-header">
             <h2>Cards</h2>
-            <button class="icon-button add-item-button" id="show-card-form" type="button" aria-label="Add card">+</button>
           </header>
 
           <form class="card-form" id="card-form" hidden>
             <div class="quick-add-row card-add-row">
               <input id="card-name" name="name" type="text" placeholder="Store card name" autocomplete="off" required />
               <input id="card-number" name="number" type="text" placeholder="Barcode number" autocomplete="off" />
-              <button class="icon-button add-item-button" type="submit" aria-label="Save card">+</button>
+              <button class="icon-button add-item-button" id="submit-card" type="submit" aria-label="Save card">+</button>
               <button class="ghost-button" id="cancel-card-form" type="button">Cancel</button>
+              <button class="ghost-button card-form-delete" id="delete-card-form" type="button" hidden>Delete</button>
             </div>
             <div class="card-upload-row">
               <label class="card-color-field">
@@ -124,7 +124,10 @@
           <div class="card-display" id="card-display" hidden>
             <div class="card-display-header">
               <h3 id="card-display-name"></h3>
-              <button class="ghost-button" id="close-card-display" type="button">Close</button>
+              <div class="card-display-actions">
+                <button class="ghost-button" id="modify-card" type="button">Modify</button>
+                <button class="ghost-button" id="close-card-display" type="button">Close</button>
+              </div>
             </div>
             <div class="barcode-stage" id="barcode-stage"></div>
           </div>
@@ -164,7 +167,6 @@
           <span class="customer-card-name"></span>
           <span class="customer-card-number"></span>
         </button>
-        <button class="ghost-button card-delete" type="button">Delete</button>
       </article>
     </template>
 
