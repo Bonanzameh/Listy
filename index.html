@@ -31,6 +31,11 @@
           </div>
         </header>
 
+        <nav class="section-nav" aria-label="Main sections">
+          <button class="section-button active" id="show-lists" type="button">Lists</button>
+          <button class="section-button" id="show-cards" type="button">Cards</button>
+        </nav>
+
         <form class="new-list-form" id="new-list-form">
           <label for="new-list-name">New list</label>
           <div class="inline-form">
@@ -82,6 +87,35 @@
             <div class="item-list" id="done-items"></div>
           </section>
         </section>
+
+        <section class="cards-workspace" id="cards-workspace" hidden>
+          <header class="cards-header">
+            <h2>Cards</h2>
+          </header>
+
+          <form class="card-form" id="card-form">
+            <div class="quick-add-row card-add-row">
+              <input id="card-name" name="name" type="text" placeholder="Store card name" autocomplete="off" required />
+              <input id="card-number" name="number" type="text" placeholder="Barcode number" autocomplete="off" />
+              <button class="icon-button add-item-button" type="submit" aria-label="Save card">+</button>
+            </div>
+            <div class="card-upload-row">
+              <input id="card-image" name="image" type="file" accept="image/*" />
+              <p>Use a barcode number, an uploaded barcode image, or both.</p>
+            </div>
+          </form>
+
+          <p class="status-message" id="card-status-message" hidden></p>
+
+          <div class="cards-grid" id="cards-grid"></div>
+          <div class="card-display" id="card-display" hidden>
+            <div class="card-display-header">
+              <h3 id="card-display-name"></h3>
+              <button class="ghost-button" id="close-card-display" type="button">Close</button>
+            </div>
+            <div class="barcode-stage" id="barcode-stage"></div>
+          </div>
+        </section>
       </main>
     </div>
 
@@ -107,6 +141,16 @@
           <button class="ghost-button item-edit" type="button">Edit</button>
           <button class="ghost-button item-delete" type="button">Delete</button>
         </div>
+      </article>
+    </template>
+
+    <template id="card-template">
+      <article class="customer-card">
+        <button class="customer-card-main" type="button">
+          <span class="customer-card-name"></span>
+          <span class="customer-card-number"></span>
+        </button>
+        <button class="ghost-button card-delete" type="button">Delete</button>
       </article>
     </template>
 

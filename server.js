@@ -20,6 +20,7 @@ function defaultState() {
   const listId = createId();
   return {
     activeListId: listId,
+    cards: [],
     lists: [
       {
         id: listId,
@@ -64,6 +65,7 @@ function normalizeState(value) {
     return defaultState();
   }
 
+  value.cards = Array.isArray(value.cards) ? value.cards : [];
   value.lists.forEach((list) => {
     list.items = Array.isArray(list.items) ? list.items : [];
   });
@@ -102,7 +104,7 @@ function readBody(req) {
     let body = "";
     req.on("data", (chunk) => {
       body += chunk;
-      if (body.length > 1_000_000) {
+      if (body.length > 5_000_000) {
         req.destroy();
         reject(new Error("Request body is too large"));
       }
@@ -166,6 +168,65 @@ async function handleApi(req, res, url) {
       const list = { id: createId(), name, createdAt: new Date().toISOString(), items: [] };
       state.lists.push(list);
       state.activeListId = list.id;
+      return state;
+    });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/cards") {
+    await mutate(res, () => {
+      const name = String(body.name || "").trim();
+      const imageData = String(body.imageData || "");
+      if (!name) {
+        throw new HttpError(400, "Card name is required");
+      }
+      if (imageData && !imageData.startsWith("data:image/")) {
+        throw new HttpError(400, "Card image must be an image data URL");
+      }
+      state.cards.push({
+        id: createId(),
+        name,
+        number: String(body.number || "").trim(),
+        imageData,
+        createdAt: new Date().toISOString(),
+      });
+      return state;
+    });
+    return;
+  }
+
+  const cardMatch = url.pathname.match(/^\/api\/cards\/([^/]+)$/);
+  if (cardMatch && req.method === "PATCH") {
+    await mutate(res, () => {
+      const card = state.cards.find((candidate) => candidate.id === cardMatch[1]);
+      const imageData = String(body.imageData || "");
+      if (!card) {
+        throw new HttpError(404, "Card not found");
+      }
+      if ("name" in body) {
+        const name = String(body.name || "").trim();
+        if (!name) {
+          throw new HttpError(400, "Card name is required");
+        }
+        card.name = name;
+      }
+      if ("number" in body) {
+        card.number = String(body.number || "").trim();
+      }
+      if ("imageData" in body) {
+        if (imageData && !imageData.startsWith("data:image/")) {
+          throw new HttpError(400, "Card image must be an image data URL");
+        }
+        card.imageData = imageData;
+      }
+      return state;
+    });
+    return;
+  }
+
+  if (cardMatch && req.method === "DELETE") {
+    await mutate(res, () => {
+      state.cards = state.cards.filter((card) => card.id !== cardMatch[1]);
       return state;
     });
     return;

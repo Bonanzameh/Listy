@@ -1,5 +1,7 @@
 const els = {
   themeToggle: document.querySelector("#theme-toggle"),
+  showLists: document.querySelector("#show-lists"),
+  showCards: document.querySelector("#show-cards"),
   sidebar: document.querySelector(".sidebar"),
   toggleLists: document.querySelector("#toggle-lists"),
   newListForm: document.querySelector("#new-list-form"),
@@ -23,12 +25,25 @@ const els = {
   doneItems: document.querySelector("#done-items"),
   listButtonTemplate: document.querySelector("#list-button-template"),
   itemTemplate: document.querySelector("#item-template"),
+  cardsWorkspace: document.querySelector("#cards-workspace"),
+  cardForm: document.querySelector("#card-form"),
+  cardName: document.querySelector("#card-name"),
+  cardNumber: document.querySelector("#card-number"),
+  cardImage: document.querySelector("#card-image"),
+  cardStatusMessage: document.querySelector("#card-status-message"),
+  cardsGrid: document.querySelector("#cards-grid"),
+  cardDisplay: document.querySelector("#card-display"),
+  cardDisplayName: document.querySelector("#card-display-name"),
+  barcodeStage: document.querySelector("#barcode-stage"),
+  closeCardDisplay: document.querySelector("#close-card-display"),
+  cardTemplate: document.querySelector("#card-template"),
 };
 
 const THEME_KEY = "listy:theme";
-let state = { activeListId: null, lists: [] };
+let state = { activeListId: null, lists: [], cards: [] };
 let activeListId = null;
 let editingItemId = null;
+let currentView = "lists";
 
 function getPreferredTheme() {
   const storedTheme = localStorage.getItem(THEME_KEY);
@@ -103,8 +118,21 @@ function sortItems(items) {
 }
 
 function render() {
+  renderView();
   renderListNav();
   renderWorkspace();
+  renderCards();
+}
+
+function renderView() {
+  const isCards = currentView === "cards";
+  els.showLists.classList.toggle("active", !isCards);
+  els.showCards.classList.toggle("active", isCards);
+  els.newListForm.hidden = isCards;
+  els.listNav.hidden = isCards;
+  els.emptyState.hidden = isCards || Boolean(getActiveList());
+  els.workspace.hidden = isCards || !getActiveList();
+  els.cardsWorkspace.hidden = !isCards;
 }
 
 function clearElement(element) {
@@ -117,6 +145,12 @@ function setStatus(message, isError) {
   els.statusMessage.hidden = !message;
   els.statusMessage.textContent = message || "";
   els.statusMessage.classList.toggle("is-error", Boolean(isError));
+}
+
+function setCardStatus(message, isError) {
+  els.cardStatusMessage.hidden = !message;
+  els.cardStatusMessage.textContent = message || "";
+  els.cardStatusMessage.classList.toggle("is-error", Boolean(isError));
 }
 
 function setOptionalFieldsVisible(isVisible) {
@@ -181,8 +215,8 @@ function renderWorkspace() {
   const list = getActiveList();
   activeListId = list ? list.id : null;
 
-  els.emptyState.hidden = Boolean(list);
-  els.workspace.hidden = !list;
+  els.emptyState.hidden = currentView === "cards" || Boolean(list);
+  els.workspace.hidden = currentView === "cards" || !list;
 
   if (!list) {
     return;
@@ -230,6 +264,112 @@ function renderItems(container, items) {
 
     container.append(card);
   });
+}
+
+function renderCards() {
+  clearElement(els.cardsGrid);
+  const cards = (state.cards || []).slice().sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+
+  if (!cards.length) {
+    const empty = document.createElement("p");
+    empty.className = "hidden-message";
+    empty.textContent = "No cards yet.";
+    els.cardsGrid.append(empty);
+    return;
+  }
+
+  cards.forEach((card) => {
+    const node = els.cardTemplate.content.firstElementChild.cloneNode(true);
+    node.querySelector(".customer-card-name").textContent = card.name;
+    node.querySelector(".customer-card-number").textContent = card.number || (card.imageData ? "Image barcode" : "No barcode");
+    node.querySelector(".customer-card-main").addEventListener("click", () => showCard(card));
+    node.querySelector(".card-delete").addEventListener("click", () => deleteCard(card.id));
+    els.cardsGrid.append(node);
+  });
+}
+
+function showCard(card) {
+  els.cardDisplay.hidden = false;
+  els.cardDisplayName.textContent = card.name;
+  clearElement(els.barcodeStage);
+
+  if (card.imageData) {
+    const image = document.createElement("img");
+    image.className = "barcode-image";
+    image.src = card.imageData;
+    image.alt = `${card.name} barcode`;
+    els.barcodeStage.append(image);
+  }
+
+  if (card.number) {
+    const barcode = createCode128Svg(card.number);
+    els.barcodeStage.append(barcode);
+  }
+
+  if (!card.imageData && !card.number) {
+    const empty = document.createElement("p");
+    empty.className = "hidden-message";
+    empty.textContent = "This card has no barcode yet.";
+    els.barcodeStage.append(empty);
+  }
+}
+
+function createCode128Svg(value) {
+  const patterns = [
+    "212222","222122","222221","121223","121322","131222","122213","122312","132212","221213",
+    "221312","231212","112232","122132","122231","113222","123122","123221","223211","221132",
+    "221231","213212","223112","312131","311222","321122","321221","312212","322112","322211",
+    "212123","212321","232121","111323","131123","131321","112313","132113","132311","211313",
+    "231113","231311","112133","112331","132131","113123","113321","133121","313121","211331",
+    "231131","213113","213311","213131","311123","311321","331121","312113","312311","332111",
+    "314111","221411","431111","111224","111422","121124","121421","141122","141221","112214",
+    "112412","122114","122411","142112","142211","241211","221114","413111","241112","134111",
+    "111242","121142","121241","114212","124112","124211","411212","421112","421211","212141",
+    "214121","412121","111143","111341","131141","114113","114311","411113","411311","113141",
+    "114131","311141","411131","211412","211214","211232","2331112"
+  ];
+  const chars = String(value).replace(/[^\x20-\x7e]/g, "");
+  const codes = [104];
+  for (let index = 0; index < chars.length; index += 1) {
+    codes.push(chars.charCodeAt(index) - 32);
+  }
+  let checksum = 104;
+  for (let index = 1; index < codes.length; index += 1) {
+    checksum += codes[index] * index;
+  }
+  codes.push(checksum % 103, 106);
+
+  const quiet = 12;
+  const barHeight = 82;
+  const moduleWidth = 2;
+  let x = quiet;
+  const rects = [];
+  codes.forEach((code) => {
+    const pattern = patterns[code];
+    for (let index = 0; index < pattern.length; index += 1) {
+      const width = Number(pattern[index]) * moduleWidth;
+      if (index % 2 === 0) {
+        rects.push(`<rect x="${x}" y="10" width="${width}" height="${barHeight}"></rect>`);
+      }
+      x += width;
+    }
+  });
+  const width = x + quiet;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "generated-barcode");
+  svg.setAttribute("viewBox", `0 0 ${width} 124`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", `Barcode ${chars}`);
+  svg.innerHTML = `<rect width="100%" height="100%" fill="#fff"></rect><g fill="#000">${rects.join("")}</g><text x="${width / 2}" y="113" text-anchor="middle" font-family="monospace" font-size="14" fill="#000">${escapeHtml(chars)}</text>`;
+  return svg;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function getItemSubtitle(item) {
@@ -370,6 +510,43 @@ async function deleteItem(itemId) {
   render();
 }
 
+function readImageFile(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve("");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      reject(new Error("Please upload an image file"));
+      return;
+    }
+    if (file.size > 3_500_000) {
+      reject(new Error("Image is too large"));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Could not read image"));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function deleteCard(cardId) {
+  const card = (state.cards || []).find((candidate) => candidate.id === cardId);
+  const confirmed = confirm(`Delete "${card ? card.name : "this card"}"?`);
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    state = await api(`/api/cards/${cardId}`, { method: "DELETE" });
+    els.cardDisplay.hidden = true;
+    render();
+  } catch (error) {
+    setCardStatus(error.message, true);
+  }
+}
+
 els.newListForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const name = els.newListName.value.trim();
@@ -388,6 +565,17 @@ els.newListForm.addEventListener("submit", async (event) => {
   } catch (error) {
     setStatus(error.message, true);
   }
+});
+
+els.showLists.addEventListener("click", () => {
+  currentView = "lists";
+  render();
+});
+
+els.showCards.addEventListener("click", () => {
+  currentView = "cards";
+  els.sidebar.classList.add("collapsed");
+  render();
 });
 
 els.listName.addEventListener("change", () => {
@@ -453,6 +641,36 @@ els.itemForm.addEventListener("submit", async (event) => {
   } catch (error) {
     setStatus(error.message, true);
   }
+});
+
+els.cardForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const name = els.cardName.value.trim();
+  const number = els.cardNumber.value.trim();
+
+  if (!name) {
+    return;
+  }
+
+  try {
+    const imageData = await readImageFile(els.cardImage.files[0]);
+    if (!number && !imageData) {
+      throw new Error("Add a barcode number or upload an image");
+    }
+    state = await api("/api/cards", {
+      method: "POST",
+      body: JSON.stringify({ name, number, imageData }),
+    });
+    els.cardForm.reset();
+    setCardStatus("", false);
+    render();
+  } catch (error) {
+    setCardStatus(error.message, true);
+  }
+});
+
+els.closeCardDisplay.addEventListener("click", () => {
+  els.cardDisplay.hidden = true;
 });
 
 els.toggleItemDetails.addEventListener("click", () => {
