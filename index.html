@@ -121,15 +121,17 @@
           <p class="status-message" id="card-status-message" hidden></p>
 
           <div class="cards-grid" id="cards-grid"></div>
-          <div class="card-display" id="card-display" hidden>
-            <div class="card-display-header">
-              <h3 id="card-display-name"></h3>
-              <div class="card-display-actions">
-                <button class="ghost-button" id="modify-card" type="button">Modify</button>
-                <button class="ghost-button" id="close-card-display" type="button">Close</button>
+          <div class="card-display-backdrop" id="card-display" hidden>
+            <div class="card-display" role="dialog" aria-modal="true" aria-labelledby="card-display-name">
+              <div class="card-display-header">
+                <h3 id="card-display-name"></h3>
+                <div class="card-display-actions">
+                  <button class="ghost-button" id="modify-card" type="button">Modify</button>
+                  <button class="ghost-button" id="close-card-display" type="button">Close</button>
+                </div>
               </div>
+              <div class="barcode-stage" id="barcode-stage"></div>
             </div>
-            <div class="barcode-stage" id="barcode-stage"></div>
           </div>
         </section>
       </main>
@@ -164,7 +166,9 @@
       <article class="customer-card">
         <button class="customer-card-main" type="button">
           <span class="customer-card-logo"></span>
-          <span class="customer-card-name"></span>
+          <span class="customer-card-label">
+            <span class="customer-card-name"></span>
+          </span>
           <span class="customer-card-number"></span>
         </button>
       </article>

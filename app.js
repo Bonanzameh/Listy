@@ -298,11 +298,12 @@ function renderCards() {
     const node = els.cardTemplate.content.firstElementChild.cloneNode(true);
     const main = node.querySelector(".customer-card-main");
     const logo = node.querySelector(".customer-card-logo");
-    main.style.background = card.color || "#087ca7";
+    setCardTileColor(main, card);
     if (card.logoData) {
       const logoImage = document.createElement("img");
       logoImage.src = card.logoData;
       logoImage.alt = "";
+      logoImage.addEventListener("load", () => applyLogoEdgeColor(main, logoImage, card.color));
       logo.append(logoImage);
     } else {
       logo.textContent = getCardInitials(card.name);
@@ -312,6 +313,79 @@ function renderCards() {
     main.addEventListener("click", () => showCard(card));
     els.cardsGrid.append(node);
   });
+}
+
+function setCardTileColor(element, card) {
+  const color = card.color || "#087ca7";
+  element.style.background = color;
+  element.style.color = getContrastColor(color);
+}
+
+function applyLogoEdgeColor(element, image, fallbackColor) {
+  try {
+    const canvas = document.createElement("canvas");
+    const width = 40;
+    const height = 40;
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    context.drawImage(image, 0, 0, width, height);
+    const data = context.getImageData(0, 0, width, height).data;
+    const color = getAverageEdgeColor(data, width, height) || fallbackColor || "#087ca7";
+    element.style.background = color;
+    element.style.color = getContrastColor(color);
+  } catch {
+    element.style.background = fallbackColor || "#087ca7";
+    element.style.color = getContrastColor(fallbackColor || "#087ca7");
+  }
+}
+
+function getAverageEdgeColor(data, width, height) {
+  let red = 0;
+  let green = 0;
+  let blue = 0;
+  let count = 0;
+  function sample(x, y) {
+    const index = (y * width + x) * 4;
+    const alpha = data[index + 3];
+    if (alpha < 16) {
+      return;
+    }
+    red += data[index];
+    green += data[index + 1];
+    blue += data[index + 2];
+    count += 1;
+  }
+  for (let x = 0; x < width; x += 1) {
+    sample(x, 0);
+    sample(x, height - 1);
+  }
+  for (let y = 1; y < height - 1; y += 1) {
+    sample(0, y);
+    sample(width - 1, y);
+  }
+  if (!count) {
+    return "";
+  }
+  return `rgb(${Math.round(red / count)}, ${Math.round(green / count)}, ${Math.round(blue / count)})`;
+}
+
+function getContrastColor(color) {
+  const match = String(color).match(/\d+/g);
+  let red = 8;
+  let green = 124;
+  let blue = 167;
+  if (String(color).startsWith("#") && color.length === 7) {
+    red = parseInt(color.slice(1, 3), 16);
+    green = parseInt(color.slice(3, 5), 16);
+    blue = parseInt(color.slice(5, 7), 16);
+  } else if (match && match.length >= 3) {
+    red = Number(match[0]);
+    green = Number(match[1]);
+    blue = Number(match[2]);
+  }
+  const brightness = (red * 299 + green * 587 + blue * 114) / 1000;
+  return brightness > 142 ? "#111111" : "#ffffff";
 }
 
 function openCardForm() {
@@ -783,6 +857,12 @@ els.closeCardDisplay.addEventListener("click", () => {
   els.cardDisplay.hidden = true;
 });
 
+els.cardDisplay.addEventListener("click", (event) => {
+  if (event.target === els.cardDisplay) {
+    els.cardDisplay.hidden = true;
+  }
+});
+
 els.modifyCard.addEventListener("click", () => {
   const card = (state.cards || []).find((candidate) => candidate.id === activeCardId);
   if (card) {
@@ -800,6 +880,10 @@ els.cancelEdit.addEventListener("click", () => {
 });
 
 document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !els.cardDisplay.hidden) {
+    els.cardDisplay.hidden = true;
+    return;
+  }
   if (event.key === "Escape" && !els.optionalFields.hidden) {
     setOptionalFieldsVisible(false);
   }

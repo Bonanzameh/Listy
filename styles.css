@@ -634,14 +634,14 @@ button[type="submit"]:hover,
 }
 
 .customer-card-main {
-  align-content: end;
+  align-content: stretch;
   border-radius: 8px;
   color: #fff;
   display: grid;
-  gap: 5px;
+  grid-template-rows: minmax(0, 1fr) auto;
   min-width: 0;
   overflow: hidden;
-  padding: 10px;
+  padding: 0;
   position: relative;
   text-align: left;
   width: 100%;
@@ -658,23 +658,31 @@ button[type="submit"]:hover,
 
 .customer-card-logo {
   align-items: center;
-  background: rgba(255, 255, 255, 0.18);
-  border-radius: 7px;
-  display: inline-flex;
+  display: flex;
   font-weight: 900;
-  height: 36px;
+  font-size: 2rem;
+  height: 100%;
   justify-content: center;
-  margin-bottom: auto;
   overflow: hidden;
   position: relative;
-  width: 36px;
+  width: 100%;
   z-index: 1;
 }
 
 .customer-card-logo img {
-  height: 100%;
-  object-fit: cover;
+  height: calc(100% - 10px);
+  object-fit: contain;
   width: 100%;
+}
+
+.customer-card-label {
+  background: rgba(0, 0, 0, 0.58);
+  color: #fff;
+  display: block;
+  min-width: 0;
+  padding: 7px 8px;
+  position: relative;
+  z-index: 1;
 }
 
 .customer-card-name,
@@ -685,6 +693,7 @@ button[type="submit"]:hover,
 }
 
 .customer-card-name {
+  display: block;
   font-weight: 850;
   position: relative;
   z-index: 1;
@@ -692,6 +701,7 @@ button[type="submit"]:hover,
 
 .customer-card-number {
   color: rgba(255, 255, 255, 0.82);
+  display: none;
   font-size: 0.78rem;
   position: relative;
   z-index: 1;
@@ -717,13 +727,27 @@ button[type="submit"]:hover,
   text-align: center;
 }
 
+.card-display-backdrop {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.58);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 18px;
+  position: fixed;
+  z-index: 20;
+}
+
 .card-display {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 8px;
   box-shadow: var(--shadow);
-  margin-top: 12px;
+  max-height: calc(100vh - 36px);
+  max-width: min(92vw, 820px);
+  overflow: auto;
   padding: 12px;
+  width: 100%;
 }
 
 .card-display-header {
