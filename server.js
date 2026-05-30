@@ -177,17 +177,23 @@ async function handleApi(req, res, url) {
     await mutate(res, () => {
       const name = String(body.name || "").trim();
       const imageData = String(body.imageData || "");
+      const logoData = String(body.logoData || "");
       if (!name) {
         throw new HttpError(400, "Card name is required");
       }
       if (imageData && !imageData.startsWith("data:image/")) {
         throw new HttpError(400, "Card image must be an image data URL");
       }
+      if (logoData && !logoData.startsWith("data:image/")) {
+        throw new HttpError(400, "Card logo must be an image data URL");
+      }
       state.cards.push({
         id: createId(),
         name,
         number: String(body.number || "").trim(),
         imageData,
+        logoData,
+        color: String(body.color || "#087ca7").trim(),
         createdAt: new Date().toISOString(),
       });
       return state;
@@ -218,6 +224,16 @@ async function handleApi(req, res, url) {
           throw new HttpError(400, "Card image must be an image data URL");
         }
         card.imageData = imageData;
+      }
+      if ("logoData" in body) {
+        const logoData = String(body.logoData || "");
+        if (logoData && !logoData.startsWith("data:image/")) {
+          throw new HttpError(400, "Card logo must be an image data URL");
+        }
+        card.logoData = logoData;
+      }
+      if ("color" in body) {
+        card.color = String(body.color || "#087ca7").trim();
       }
       return state;
     });

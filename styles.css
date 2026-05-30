@@ -575,6 +575,7 @@ button[type="submit"]:hover,
 .cards-header {
   align-items: center;
   display: flex;
+  justify-content: space-between;
   margin-bottom: 8px;
 }
 
@@ -584,23 +585,33 @@ button[type="submit"]:hover,
 }
 
 .card-form {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 5px;
   display: grid;
   gap: 6px;
   margin-bottom: 10px;
+  padding: 8px;
 }
 
 .card-add-row {
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr) auto auto;
 }
 
 .card-upload-row {
-  align-items: center;
   display: grid;
   gap: 8px;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 92px minmax(0, 1fr) minmax(0, 1fr);
 }
 
-.card-upload-row p {
+.card-upload-row label {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.78rem;
+  gap: 4px;
+}
+
+.form-note {
   color: var(--muted);
   font-size: 0.78rem;
   margin: 0;
@@ -608,27 +619,61 @@ button[type="submit"]:hover,
 
 .cards-grid {
   display: grid;
-  gap: 5px;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
 }
 
 .customer-card {
-  align-items: center;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 4px;
+  aspect-ratio: 1;
+  background: transparent;
+  border: 0;
   display: grid;
-  gap: 6px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  min-height: 36px;
-  padding: 4px 6px;
+  gap: 5px;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+  padding: 0;
 }
 
 .customer-card-main {
-  background: transparent;
-  color: var(--text);
+  align-content: end;
+  border-radius: 8px;
+  color: #fff;
   display: grid;
-  gap: 3px;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 10px;
+  position: relative;
   text-align: left;
+}
+
+.customer-card-main::after {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 44%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.customer-card-logo {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 7px;
+  display: inline-flex;
+  font-weight: 900;
+  height: 36px;
+  justify-content: center;
+  margin-bottom: auto;
+  overflow: hidden;
+  position: relative;
+  width: 36px;
+  z-index: 1;
+}
+
+.customer-card-logo img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
 .customer-card-name,
@@ -640,11 +685,36 @@ button[type="submit"]:hover,
 
 .customer-card-name {
   font-weight: 850;
+  position: relative;
+  z-index: 1;
 }
 
 .customer-card-number {
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 0.78rem;
+  position: relative;
+  z-index: 1;
+}
+
+.add-card-tile {
+  align-items: center;
+  aspect-ratio: 1;
+  background: var(--panel-warm);
+  border: 1px dashed var(--gold);
+  border-radius: 8px;
+  color: var(--gold-strong);
+  display: grid;
+  font-size: 2rem;
+  font-weight: 850;
+  justify-content: center;
+}
+
+.card-delete {
+  background: var(--danger-bg);
+  border-radius: 5px;
+  color: var(--danger);
+  justify-self: stretch;
+  text-align: center;
 }
 
 .card-display {
@@ -769,6 +839,10 @@ button[type="submit"]:hover,
   .card-add-row,
   .card-upload-row {
     grid-template-columns: 1fr;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .optional-fields textarea {

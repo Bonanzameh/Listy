@@ -27,8 +27,12 @@ const els = {
   itemTemplate: document.querySelector("#item-template"),
   cardsWorkspace: document.querySelector("#cards-workspace"),
   cardForm: document.querySelector("#card-form"),
+  showCardForm: document.querySelector("#show-card-form"),
+  cancelCardForm: document.querySelector("#cancel-card-form"),
   cardName: document.querySelector("#card-name"),
   cardNumber: document.querySelector("#card-number"),
+  cardColor: document.querySelector("#card-color"),
+  cardLogo: document.querySelector("#card-logo"),
   cardImage: document.querySelector("#card-image"),
   cardStatusMessage: document.querySelector("#card-status-message"),
   cardsGrid: document.querySelector("#cards-grid"),
@@ -270,6 +274,14 @@ function renderCards() {
   clearElement(els.cardsGrid);
   const cards = (state.cards || []).slice().sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
+  const addTile = document.createElement("button");
+  addTile.className = "customer-card add-card-tile";
+  addTile.type = "button";
+  addTile.setAttribute("aria-label", "Add card");
+  addTile.textContent = "+";
+  addTile.addEventListener("click", openCardForm);
+  els.cardsGrid.append(addTile);
+
   if (!cards.length) {
     const empty = document.createElement("p");
     empty.className = "hidden-message";
@@ -280,12 +292,46 @@ function renderCards() {
 
   cards.forEach((card) => {
     const node = els.cardTemplate.content.firstElementChild.cloneNode(true);
+    const main = node.querySelector(".customer-card-main");
+    const logo = node.querySelector(".customer-card-logo");
+    main.style.background = card.color || "#087ca7";
+    if (card.logoData) {
+      const logoImage = document.createElement("img");
+      logoImage.src = card.logoData;
+      logoImage.alt = "";
+      logo.append(logoImage);
+    } else {
+      logo.textContent = getCardInitials(card.name);
+    }
     node.querySelector(".customer-card-name").textContent = card.name;
     node.querySelector(".customer-card-number").textContent = card.number || (card.imageData ? "Image barcode" : "No barcode");
-    node.querySelector(".customer-card-main").addEventListener("click", () => showCard(card));
+    main.addEventListener("click", () => showCard(card));
     node.querySelector(".card-delete").addEventListener("click", () => deleteCard(card.id));
     els.cardsGrid.append(node);
   });
+}
+
+function openCardForm() {
+  els.cardForm.hidden = false;
+  els.showCardForm.hidden = true;
+  setCardStatus("", false);
+  els.cardName.focus();
+}
+
+function closeCardForm() {
+  els.cardForm.reset();
+  els.cardColor.value = "#087ca7";
+  els.cardForm.hidden = true;
+  els.showCardForm.hidden = false;
+  setCardStatus("", false);
+}
+
+function getCardInitials(name) {
+  const words = String(name || "").trim().split(/\s+/).filter(Boolean);
+  if (!words.length) {
+    return "C";
+  }
+  return words.slice(0, 2).map((word) => word[0].toUpperCase()).join("");
 }
 
 function showCard(card) {
@@ -654,20 +700,25 @@ els.cardForm.addEventListener("submit", async (event) => {
 
   try {
     const imageData = await readImageFile(els.cardImage.files[0]);
+    const logoData = await readImageFile(els.cardLogo.files[0]);
     if (!number && !imageData) {
       throw new Error("Add a barcode number or upload an image");
     }
     state = await api("/api/cards", {
       method: "POST",
-      body: JSON.stringify({ name, number, imageData }),
+      body: JSON.stringify({ name, number, imageData, logoData, color: els.cardColor.value }),
     });
-    els.cardForm.reset();
+    closeCardForm();
     setCardStatus("", false);
     render();
   } catch (error) {
     setCardStatus(error.message, true);
   }
 });
+
+els.showCardForm.addEventListener("click", openCardForm);
+
+els.cancelCardForm.addEventListener("click", closeCardForm);
 
 els.closeCardDisplay.addEventListener("click", () => {
   els.cardDisplay.hidden = true;

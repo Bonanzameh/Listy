@@ -59,7 +59,7 @@
               <input id="list-name" class="list-title-input" type="text" autocomplete="off" />
             </div>
             <div class="header-actions">
-              <button class="danger-button" id="delete-list" type="button">Delete list</button>
+              <button class="danger-button" id="delete-list" type="button">Delete</button>
             </div>
           </header>
 
@@ -91,18 +91,31 @@
         <section class="cards-workspace" id="cards-workspace" hidden>
           <header class="cards-header">
             <h2>Cards</h2>
+            <button class="icon-button add-item-button" id="show-card-form" type="button" aria-label="Add card">+</button>
           </header>
 
-          <form class="card-form" id="card-form">
+          <form class="card-form" id="card-form" hidden>
             <div class="quick-add-row card-add-row">
               <input id="card-name" name="name" type="text" placeholder="Store card name" autocomplete="off" required />
               <input id="card-number" name="number" type="text" placeholder="Barcode number" autocomplete="off" />
               <button class="icon-button add-item-button" type="submit" aria-label="Save card">+</button>
+              <button class="ghost-button" id="cancel-card-form" type="button">Cancel</button>
             </div>
             <div class="card-upload-row">
-              <input id="card-image" name="image" type="file" accept="image/*" />
-              <p>Use a barcode number, an uploaded barcode image, or both.</p>
+              <label class="card-color-field">
+                Color
+                <input id="card-color" name="color" type="color" value="#087ca7" />
+              </label>
+              <label>
+                Logo
+                <input id="card-logo" name="logo" type="file" accept="image/*" />
+              </label>
+              <label>
+                Barcode image
+                <input id="card-image" name="image" type="file" accept="image/*" />
+              </label>
             </div>
+            <p class="form-note">Use a barcode number, a barcode image, or both. Color and logo style the card button.</p>
           </form>
 
           <p class="status-message" id="card-status-message" hidden></p>
@@ -147,6 +160,7 @@
     <template id="card-template">
       <article class="customer-card">
         <button class="customer-card-main" type="button">
+          <span class="customer-card-logo"></span>
           <span class="customer-card-name"></span>
           <span class="customer-card-number"></span>
         </button>
