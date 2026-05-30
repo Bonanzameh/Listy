@@ -721,7 +721,6 @@ button[type="submit"]:hover,
   }
 
   .sidebar.collapsed .new-list-form,
-  .sidebar.collapsed .section-nav,
   .sidebar.collapsed .list-nav {
     display: none;
   }
@@ -735,8 +734,10 @@ button[type="submit"]:hover,
     grid-template-columns: 1fr auto;
   }
 
-  .danger-button {
-    display: none;
+  #delete-list {
+    display: inline-block;
+    font-size: 0.82rem;
+    padding: 7px 8px;
   }
 
   .list-title-input {
